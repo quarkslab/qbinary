@@ -1,6 +1,6 @@
 project(
     'qbinary',
-    version: '0.0.1',
+    version: run_command('grep', '-oP', '__version__ = "\K[0-9.]+', 'src/qbinary/__version__.py').stdout().strip(),
     license: 'Apache-2.0',
     license_files: 'LICENSE',
     meson_version: '>= 1.1.0',

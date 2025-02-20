@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""QBinary
+"""BinExport Backend
 
-QBinary is a framework meant to offer a stable universal API over binaries.
-"""
+The implementation of the BinExport backend"""
 
-from qbinary.__version__ import __version__
-from qbinary.program import Program
+from qbinary.backend.binexport.program import ProgramBinExport
+from qbinary.backend.binexport.function import FunctionBinExport
+from qbinary.backend.binexport.basic_block import BasicBlockBinExport
+from qbinary.backend.binexport.instruction import InstructionBinExport
+from qbinary.backend.binexport.operand import OperandBinExport
