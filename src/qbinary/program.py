@@ -30,7 +30,7 @@ from qbinary.function import Function
 if TYPE_CHECKING:
     import networkx
     from networkx.classes.reportviews import OutEdgeView
-    from collections.abc import Iterator
+    from collections.abc import Iterator, ItemsView
     from qbinary.types import Addr, ProgramCapability
 
 
@@ -73,20 +73,20 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
     def __getitem__(self, key: int) -> Function:
         raise NotImplementedError()
 
-    @multimethod
-    def __getitem__(self, key: str) -> Function:
+    @__getitem__.register
+    def _(self, key: str) -> Function:
         return self[self.func_names[key]]
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}:{self.name}>"
 
     @abstractmethod
-    def items(self) -> Iterator[tuple[Addr, Function]]:
+    def items(self) -> ItemsView[Addr, Function]:
         """
-        Iterate over the items. Each item is {address: :py:class:`Function`}
+        Returns a set-like object providing a view on the functions
 
-        :returns: A :py:class:`Iterator` over the functions. Each element
-                  is a tuple (function_addr, function_obj)
+        :returns: A view over the functions. Each element is a
+            pair (function_addr, function_obj)
         """
         raise NotImplementedError()
 

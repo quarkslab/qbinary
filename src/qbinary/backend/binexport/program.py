@@ -17,7 +17,8 @@
 Contains the ProgramBinExport implementation"""
 
 from __future__ import annotations
-import weakref, networkx, binexport, logging, capstone
+import weakref, networkx, logging
+import binexport, capstone  # type: ignore[import-untyped]
 from typing import TypeAlias, TYPE_CHECKING
 from functools import cached_property
 from multimethod import multimethod
@@ -27,7 +28,7 @@ from qbinary.backend.binexport.function import FunctionBinExport
 from qbinary.types import ProgramCapability
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, ItemsView
     from typing import Any
     from qbinary.function import Function
     from qbinary.types import Addr
@@ -135,12 +136,12 @@ class ProgramBinExport(Program):
     def __getitem__(self, key: int) -> FunctionBinExport:
         return self._functions.__getitem__(key)
 
-    def items(self) -> Iterator[tuple[Addr, FunctionBinExport]]:
+    def items(self) -> ItemsView[Addr, FunctionBinExport]:
         """
-        Iterate over the items. Each item is {address: :py:class:`FunctionBinExport`}
+        Returns a set-like object providing a view on the functions
 
-        :returns: A :py:class:`Iterator` over the functions. Each element
-                  is a tuple (function_addr, function_obj)
+        :returns: A view over the functions. Each element is a
+            pair (function_addr, function_obj)
         """
 
         return self._functions.items()

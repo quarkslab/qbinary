@@ -17,8 +17,7 @@
 Collection of utilities used internally"""
 
 from __future__ import annotations
-import logging
-from functools import cache
+import logging, functools
 from types import GenericAlias
 
 _NOT_FOUND = object()
@@ -33,8 +32,7 @@ class cached_property:
     def __init__(self, func):
         self.func = func
         self.attrname = None
-        self.__doc__ = func.__doc__
-        self.__module__ = func.__module__
+        functools.update_wrapper(self, func)
 
     def __set_name__(self, owner, name):
         if self.attrname is None:
@@ -66,10 +64,10 @@ class cached_property:
             cache[self.attrname] = val
         return val
 
-    __class_getitem__ = classmethod(GenericAlias)
+    __class_getitem__ = classmethod(GenericAlias)  # type: ignore[var-annotated]
 
 
-@cache
+@functools.cache
 def log_once(level: int, message: str) -> None:
     """
     Log a message with the corresponding level only once.

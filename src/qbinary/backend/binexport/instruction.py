@@ -20,13 +20,15 @@ from __future__ import annotations
 from functools import reduce
 from typing import TYPE_CHECKING
 from qbinary.instruction import Instruction
+from qbinary.operand import Operand
 from qbinary.backend.binexport.operand import OperandBinExport
+
 from qbinary.utils import cached_property
 from qbinary.types import InstructionGroup
 
 
 if TYPE_CHECKING:
-    import capstone
+    import capstone  # type: ignore[import-untyped]
 
 
 class InstructionBinExport(Instruction):
@@ -38,20 +40,21 @@ class InstructionBinExport(Instruction):
         # Private attributes
         self._cs = cs
         self._cs_instr = cs_instruction
-        self._cached_properties = {}
+        self._cached_properties: dict = {}
 
         # Public attributes
         self.comment = ""  # Not supported
         self.mnemonic = self._cs_instr.mnemonic
         self.groups = reduce(
-            lambda x, y: x | y, map(InstructionGroup.from_capstone, self._cs_instr.groups)
+            lambda x, y: x | y,
+            map(lambda g: InstructionGroup.from_capstone(self._cs.arch, g), self._cs_instr.groups),
         )
         self.addr = self._cs_instr.address
         self.bytes = bytes(self._cs_instr.bytes)
         self.id = self._cs_instr.id
 
     @cached_property
-    def operands(self) -> list[OperandBinExport]:
+    def operands(self) -> list[Operand]:  # type: ignore[override]
         """Returns the list of operands as Operand object."""
         return [
             OperandBinExport(self._cs, self._cs_instr, o, i)

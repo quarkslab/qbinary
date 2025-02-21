@@ -17,7 +17,8 @@
 Contains the BasicBlockBinExport implementation"""
 
 from __future__ import annotations
-import weakref, binexport, capstone
+import weakref, logging
+import capstone, binexport  # type: ignore[import-untyped]
 from typing import TYPE_CHECKING
 
 from qbinary.basic_block import BasicBlock
@@ -87,7 +88,7 @@ class BasicBlockBinExport(BasicBlock):
         # Private attributes
         self._program = program
         self._be_block = be_block
-        self._cached_properties = {}
+        self._cached_properties: dict = {}
 
         # Public attributes
         self.addr = self._be_block.addr
@@ -187,7 +188,7 @@ class BasicBlockBinExport(BasicBlock):
         return program
 
     @cached_property
-    def instructions(self) -> list[InstructionBinExport]:
+    def instructions(self) -> list[InstructionBinExport]:  # type: ignore[override]
         """
         List of Instruction objects of the basic block
         """

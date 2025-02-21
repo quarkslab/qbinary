@@ -17,7 +17,12 @@
 Contains the abstraction layer to a Operand"""
 
 from __future__ import annotations
+from typing import TYPE_CHECKING
 from qbinary.abc import ABCMetaAttributes
+
+
+if TYPE_CHECKING:
+    from qbinary.types import OperandType
 
 
 class Operand(metaclass=ABCMetaAttributes):

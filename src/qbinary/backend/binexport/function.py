@@ -17,33 +17,36 @@
 Contains the FunctionBinExport implementation"""
 
 from __future__ import annotations
-import weakref, binexport
-from typing import TYPE_CHECKING
+import weakref
+import binexport  # type: ignore[import-untyped]
+from typing import TYPE_CHECKING, cast
 from qbinary.function import Function
 from qbinary.backend.binexport.basic_block import BasicBlockBinExport
 from qbinary.types import FunctionType
 
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterator, ItemsView
     from qbinary.backend.binexport.program import ProgramBinExport
     from qbinary.types import Addr
 
 
 class FunctionBinExport(Function):
-    __slots__ = ("_be_func", "_program", "_enable_unloading", "_blocks")
+    __slots__ = ("_be_func", "_program", "__enable_unloading", "_blocks")
 
     def __init__(
         self, program: weakref.ref[ProgramBinExport], be_func: binexport.function.FunctionBinExport
     ):
         super().__init__()
 
+        # Class private attributes
+        self.__enable_unloading = True
+
         # Private attributes
         self._be_func = be_func
         self._program = program
         # The basic blocks are lazily loaded
         self._blocks: dict[Addr, BasicBlockBinExport] | None = None
-        self._enable_unloading = True
 
         # Public attributes
         self.addr = self._be_func.addr
@@ -70,7 +73,7 @@ class FunctionBinExport(Function):
         Preload basic blocks and don't deallocate them until __exit__ is called
         """
 
-        self._enable_unloading = False
+        self.__enable_unloading = False
         self._preload()
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
@@ -78,7 +81,7 @@ class FunctionBinExport(Function):
         Deallocate all the basic blocks
         """
 
-        self._enable_unloading = True
+        self.__enable_unloading = True
         self._unload()
 
     def __getitem__(self, key: Addr) -> BasicBlockBinExport:
@@ -86,7 +89,7 @@ class FunctionBinExport(Function):
             return self._blocks[key]
 
         self._preload()
-        bb = self._blocks[key]
+        bb = self._blocks[key]  # type: ignore
         self._unload()
         return bb
 
@@ -99,7 +102,7 @@ class FunctionBinExport(Function):
             yield from self._blocks.keys()
         else:
             self._preload()
-            yield from self._blocks.keys()
+            yield from self._blocks.keys()  # type: ignore
             self._unload()
 
     def __len__(self) -> int:
@@ -107,23 +110,25 @@ class FunctionBinExport(Function):
             return len(self._blocks)
 
         self._preload()
-        size = len(self._blocks)
+        size = len(self._blocks)  # type: ignore
         self._unload()
         return size
 
-    def items(self) -> Iterator[tuple[Addr, BasicBlockBinExport]]:
+    def items(self) -> ItemsView[Addr, BasicBlockBinExport]:
         """
-        Returns a generator of tuples with addresses of basic blocks and the corresponding basic blocks objects
+        Returns a set-like object providing a view on the basic blocks
 
-        :returns: generator (addr, basicblock)
+        :returns: A view over the basic blocks. Each element is a pair (addr, basicblock)
         """
 
         if self._blocks is not None:
-            yield from self._blocks.items()
+            return self._blocks.items()
         else:
             self._preload()
-            yield from self._blocks.items()
+            # Store the basic blocks in a temporary variable
+            blocks = cast(dict[Addr, BasicBlockBinExport], self._blocks)
             self._unload()
+            return blocks.items()
 
     def _preload(self) -> None:
         """Load in memory all the basic blocks"""
@@ -134,5 +139,5 @@ class FunctionBinExport(Function):
     def _unload(self) -> None:
         """Unload from memory all the basic blocks"""
 
-        if self._enable_unloading:
+        if self.__enable_unloading:
             self._blocks = None

@@ -22,15 +22,14 @@ from abc import abstractmethod
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 from qbinary.abc import ABCMetaAttributes
-from qbinary.types import FunctionType
 
 
 if TYPE_CHECKING:
     import networkx
     from networkx.classes.reportviews import OutEdgeView
-    from collections.abc import Iterator
+    from collections.abc import Iterator, ItemsView
     from qbinary.basic_block import BasicBlock
-    from qbinary.types import FunctionType
+    from qbinary.types import FunctionType, Addr
 
 
 class Function(Mapping, metaclass=ABCMetaAttributes):
@@ -114,11 +113,11 @@ class Function(Mapping, metaclass=ABCMetaAttributes):
         raise NotImplementedError()
 
     @abstractmethod
-    def items(self) -> Iterator[tuple[Addr, BasicBlock]]:
+    def items(self) -> ItemsView[Addr, BasicBlock]:
         """
-        Returns a generator of tuples with addresses of basic blocks and the corresponding basic blocks objects
+        Returns a set-like object providing a view on the basic blocks
 
-        :returns: generator (addr, basicblock)
+        :returns: A view over the basic blocks. Each element is a pair (addr, basicblock)
         """
         raise NotImplementedError()
 

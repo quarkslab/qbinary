@@ -145,4 +145,4 @@ class InstructionGroup(enum.IntFlag, boundary=enum.STRICT):
                     f"Misalignment between capstone group {capstone_group} ({capstone_arch=}) "
                     "and InstructionGroup",
                 )
-                return InstructionGroup.GRP_INVALID
+                return InstructionGroup.INVALID

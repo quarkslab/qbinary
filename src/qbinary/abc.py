@@ -21,7 +21,7 @@ from abc import ABCMeta
 
 
 class ABCMetaAttributes(ABCMeta):
-    __cached_cls = set()  # Caching classes to avoid overhead
+    __cached_cls: set[type] = set()  # Caching classes to avoid overhead
 
     def __call__(cls, *args, **kwargs):
         instance = super().__call__(*args, **kwargs)
