@@ -19,3 +19,19 @@ QBinary is a framework meant to offer a stable universal API over binaries.
 
 from qbinary.__version__ import __version__
 from qbinary.program import Program
+from qbinary.types import (
+    ProgramCapability,
+    OperandType,
+    FunctionType,
+    InstructionGroup,
+    BackendType,
+)
+
+__all__ = [
+    "Program",
+    "ProgramCapability",
+    "OperandType",
+    "FunctionType",
+    "InstructionGroup",
+    "BackendType",
+]

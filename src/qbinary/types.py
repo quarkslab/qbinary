@@ -34,15 +34,15 @@ An integer representing an address within a program
 
 
 @enum_tools.documentation.document_enum
-class LoaderType(enum.IntEnum):
+class BackendType(enum.IntEnum):
     """
-    Enum of different loaders (supported or not)
+    Enum of different backends (supported or not)
     """
 
-    binexport = 0  # doc: binexport loader
-    diaphora = 1  # doc: diaphora loader (not supported)
-    ida = 2  # doc: IDA loader
-    quokka = 3  # doc: Quokka loader
+    binexport = 0  # doc: binexport backend
+    diaphora = 1  # doc: diaphora backend (not supported)
+    ida = 2  # doc: IDA backend
+    quokka = 3  # doc: Quokka backend
 
 
 @enum_tools.documentation.document_enum

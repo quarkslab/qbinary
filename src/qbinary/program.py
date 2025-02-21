@@ -24,7 +24,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from qbinary.abc import ABCMetaAttributes
-from qbinary.types import LoaderType
+from qbinary.types import BackendType
 from qbinary.function import Function
 
 if TYPE_CHECKING:
@@ -101,7 +101,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         return self.callgraph.edges
 
     @staticmethod
-    def open(*args, backend: LoaderType | None = None, **kwargs) -> Program:
+    def open(*args, backend: BackendType | None = None, **kwargs) -> Program:
         """
         Opens a program by calling the right backend.
 
@@ -113,25 +113,25 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         if backend is None and len(args) > 0:
             path = args[0].casefold()  # Assume that path is the first non-keyword argument
             if path.endswith(".Quokka".casefold()):
-                backend = LoaderType.quokka
+                backend = BackendType.quokka
             elif path.endswith(".BinExport".casefold()):
-                backend = LoaderType.binexport
+                backend = BackendType.binexport
             else:
-                logging.error(f"Could not infer the loader from the provided path {path}")
+                logging.error(f"Could not infer the backend from the provided path {path}")
 
         # Match the resulting backend
         match backend:
-            case LoaderType.ida:
+            case BackendType.ida:
                 from qbinary.backend.ida import ProgramIDA
 
                 return ProgramIDA(*args, **kwargs)
 
-            case LoaderType.binexport:
+            case BackendType.binexport:
                 from qbinary.backend.binexport import ProgramBinExport
 
                 return ProgramBinExport(*args, **kwargs)
 
-            case LoaderType.quokka:
+            case BackendType.quokka:
                 from qbinary.backend.quokka import ProgramQuokka
 
                 return ProgramQuokka(*args, **kwargs)
@@ -155,7 +155,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         :return: Program instance
         """
 
-        return Program.open(file_path, arch=arch, exec_path=exec_path, backend=LoaderType.binexport)
+        return Program.open(file_path, arch=arch, exec_path=exec_path, backend=BackendType.binexport)
 
     @staticmethod
     def from_quokka(file_path: str, exec_path: str) -> Program:
@@ -167,7 +167,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         :return: Program instance
         """
 
-        return Program.open(file_path, exec_path=exec_path, backend=LoaderType.quokka)
+        return Program.open(file_path, exec_path=exec_path, backend=BackendType.quokka)
 
     @staticmethod
     def from_ida() -> Program:
@@ -177,4 +177,4 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         :return: Program instance
         """
 
-        return Program.open(backend=LoaderType.ida)
+        return Program.open(backend=BackendType.ida)
