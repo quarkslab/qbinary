@@ -43,7 +43,9 @@ class InstructionBinExport(Instruction):
         # Public attributes
         self.comment = ""  # Not supported
         self.mnemonic = self._cs_instr.mnemonic
-        self.groups = reduce(lambda x, y: x | y, map(InstructionGroup.from_capstone, self._cs_instr.groups))
+        self.groups = reduce(
+            lambda x, y: x | y, map(InstructionGroup.from_capstone, self._cs_instr.groups)
+        )
         self.addr = self._cs_instr.address
         self.bytes = bytes(self._cs_instr.bytes)
         self.id = self._cs_instr.id

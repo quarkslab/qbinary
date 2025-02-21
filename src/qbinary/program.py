@@ -155,7 +155,9 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         :return: Program instance
         """
 
-        return Program.open(file_path, arch=arch, exec_path=exec_path, backend=BackendType.binexport)
+        return Program.open(
+            file_path, arch=arch, exec_path=exec_path, backend=BackendType.binexport
+        )
 
     @staticmethod
     def from_quokka(file_path: str, exec_path: str) -> Program:

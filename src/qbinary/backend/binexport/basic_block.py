@@ -51,6 +51,7 @@ def _get_capstone_disassembler(binexport_arch: str, mode: int = 0):
         f"Cannot instantiate a capstone disassembler from architecture {binexport_arch}"
     )
 
+
 def _is_same_mnemonic(mnemonic1: str, mnemonic2: str) -> bool:
     """Check whether two mnemonics are the same"""
 
