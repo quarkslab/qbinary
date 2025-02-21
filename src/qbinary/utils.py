@@ -16,6 +16,9 @@
 
 Collection of utilities used internally"""
 
+from __future__ import annotations
+import logging
+from functools import cache
 from types import GenericAlias
 
 _NOT_FOUND = object()
@@ -64,3 +67,15 @@ class cached_property:
         return val
 
     __class_getitem__ = classmethod(GenericAlias)
+
+
+@cache
+def log_once(level: int, message: str) -> None:
+    """
+    Log a message with the corresponding level only once.
+
+    :param level: The severity level of the logging
+    :param message: The message to log
+    """
+
+    logging.log(level, message)

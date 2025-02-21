@@ -44,8 +44,8 @@ class InstructionBinExport(Instruction):
         self.mnemonic = self._cs_instr.mnemonic
         self.groups = set(map(InstructionGroup.from_capstone, self._cs_instr.groups))
         self.addr = self._cs_instr.address
-        self.bytes = bytes(self.cs_instr.bytes)
-        self.id = self.cs_instr.id
+        self.bytes = bytes(self._cs_instr.bytes)
+        self.id = self._cs_instr.id
 
     @cached_property
     def operands(self) -> list[OperandBinExport]:

@@ -23,7 +23,7 @@ from qbinary.abc import ABCMetaAttributes
 
 if TYPE_CHECKING:
     from qbinary.operand import Operand
-    from qbinary.types import Addr
+    from qbinary.types import Addr, InstructionGroup
 
 
 class Instruction(metaclass=ABCMetaAttributes):
@@ -36,7 +36,15 @@ class Instruction(metaclass=ABCMetaAttributes):
 
     addr: Addr  # The address of the instruction
     mnemonic: str  # The instruction mnemonic as a string
-    id: int  # The instruction ID as int
+    id: int
+    """
+    The instruction ID as a non negative int.
+
+    ..  warning::
+        The backend is responsible for creating this value, different backends
+        should not be considered compatible between each other. (For example IDA
+        relies on IDA IDs while quokka relies on capstone IDs)
+    """
     comment: str  # The comment tied to the instruction
     bytes: bytes  # The bytes representation of the Instruction
     groups: set[InstructionGroup]

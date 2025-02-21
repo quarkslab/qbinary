@@ -18,6 +18,7 @@ Contains the OperandBinExport implementation"""
 
 from __future__ import annotations
 import capstone
+from typing import Any
 from qbinary.operand import Operand
 from qbinary.types import OperandType
 

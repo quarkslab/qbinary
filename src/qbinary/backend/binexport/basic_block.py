@@ -22,7 +22,7 @@ from typing import TYPE_CHECKING
 
 from qbinary.basic_block import BasicBlock
 from qbinary.backend.binexport.instruction import InstructionBinExport
-from qbinary.utils import cached_property
+from qbinary.utils import cached_property, log_once
 
 if TYPE_CHECKING:
     from qbinary.backend.binexport.program import ProgramBinExport

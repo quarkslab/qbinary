@@ -19,9 +19,10 @@ used by qbinary.
 """
 
 from __future__ import annotations
-import enum_tools.documentation
+import enum_tools.documentation, logging
 from enum import IntEnum, IntFlag, auto
 from typing import TYPE_CHECKING
+from qbinary.utils import log_once
 
 if TYPE_CHECKING:
     from typing import TypeAlias
@@ -85,3 +86,43 @@ class OperandType(IntEnum):
     arm_setend = 6  # doc: operand for SETEND instruction ('BE'/'LE')
     arm_sme = 7  # doc: operand for SME instruction (matrix operation)
     arm_memory_management = 8  # doc: Memory management operand like prefetch, SYS and barrier
+
+
+@enum_tools.documentation.document_enum
+class InstructionGroup(IntEnum):
+    """
+    Abstraction for the instruction group, for now rely on capstone ones.
+    """
+
+    GRP_INVALID = 0  # doc: Uninitialized/invalid group
+    GRP_JUMP = 1  # doc: Jump instructions (conditional+direct+indirect jumps)
+    GRP_CALL = 2  # doc: Call instructions
+    GRP_RET = 3  # doc: Return group
+    GRP_INT = 4  # doc: Interrupt instructions (int+syscall)
+    GRP_IRET = 5  # doc: Interrupt return instructions
+    GRP_PRIVILEGE = 6  # doc: Privileged instructions
+    GRP_BRANCH_RELATIVE = 7  # doc: Relative branching instructions
+
+    @classmethod
+    def fromint(cls, value: int):
+        """Cast an integer to InstructionGroup type"""
+        # Return an invalid group if cast is not possible
+        try:
+            return InstructionGroup(value)
+        except ValueError:
+            return InstructionGroup.GRP_INVALID
+
+    @classmethod
+    def from_capstone(cls, capstone_group: int):
+        """Cast a capstone group to InstructionGroup type"""
+        # Wrap capstone group using our custom type
+        # Note: This only works because the mappings between the enums are the same
+        try:
+            return InstructionGroup(capstone_group)
+        except ValueError:
+            # Log once the unsupported
+            log_once(
+                logging.WARN,
+                f"Misalignment between capstone group {capstone_group} and InstructionGroup",
+            )
+            return InstructionGroup.GRP_INVALID
