@@ -47,7 +47,7 @@ class Instruction(metaclass=ABCMetaAttributes):
     """
     comment: str  # The comment tied to the instruction
     bytes: bytes  # The bytes representation of the Instruction
-    groups: set[InstructionGroup]
+    groups: InstructionGroup
     """
     A set of groups of this instruction
 

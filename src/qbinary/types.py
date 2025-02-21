@@ -19,8 +19,8 @@ used by qbinary.
 """
 
 from __future__ import annotations
+import enum
 import enum_tools.documentation, logging
-from enum import IntEnum, IntFlag, auto
 from typing import TYPE_CHECKING
 from qbinary.utils import log_once
 
@@ -34,7 +34,7 @@ An integer representing an address within a program
 
 
 @enum_tools.documentation.document_enum
-class LoaderType(IntEnum):
+class LoaderType(enum.IntEnum):
     """
     Enum of different loaders (supported or not)
     """
@@ -46,7 +46,7 @@ class LoaderType(IntEnum):
 
 
 @enum_tools.documentation.document_enum
-class FunctionType(IntEnum):
+class FunctionType(enum.IntEnum):
     """
     Function types
     """
@@ -59,18 +59,18 @@ class FunctionType(IntEnum):
 
 
 @enum_tools.documentation.document_enum
-class ProgramCapability(IntFlag):
+class ProgramCapability(enum.IntFlag):
     """
     Defines the capabilities that are supported by a Program backed
     by a specific backend loader
     """
 
-    PCODE = auto()
-    INSTR_GROUP = auto()
+    PCODE = enum.auto()
+    INSTR_GROUP = enum.auto()
 
 
 @enum_tools.documentation.document_enum
-class OperandType(IntEnum):
+class OperandType(enum.IntEnum):
     """
     All the operand types as defined by IDA
     """
@@ -89,40 +89,60 @@ class OperandType(IntEnum):
 
 
 @enum_tools.documentation.document_enum
-class InstructionGroup(IntEnum):
+class InstructionGroup(enum.IntFlag, boundary=enum.STRICT):
     """
-    Abstraction for the instruction group, for now rely on capstone ones.
+    Categorize instructions into semantic groups, for now it relies on capstone ones.
     """
 
-    GRP_INVALID = 0  # doc: Uninitialized/invalid group
-    GRP_JUMP = 1  # doc: Jump instructions (conditional+direct+indirect jumps)
-    GRP_CALL = 2  # doc: Call instructions
-    GRP_RET = 3  # doc: Return group
-    GRP_INT = 4  # doc: Interrupt instructions (int+syscall)
-    GRP_IRET = 5  # doc: Interrupt return instructions
-    GRP_PRIVILEGE = 6  # doc: Privileged instructions
-    GRP_BRANCH_RELATIVE = 7  # doc: Relative branching instructions
+    INVALID = enum.auto()  # doc: Uninitialized/invalid group
+    JUMP = enum.auto()  # doc: Jump instructions (conditional+direct+indirect jumps)
+    CALL = enum.auto()  # doc: Call instructions
+    RET = enum.auto()  # doc: Return group
+    INT = enum.auto()  # doc: Interrupt instructions (int+syscall)
+    IRET = enum.auto()  # doc: Interrupt return instructions
+    PRIVILEGE = enum.auto()  # doc: Privileged instructions
+    BRANCH_RELATIVE = enum.auto()  # doc: Relative branching instructions
+    AES = enum.auto()  # doc: AES related instructions
+    MODE64 = enum.auto()
+    """
+    doc: Instructions working on 64 bits operands/addresses/values
+    (but they have counterparts for different bitnesses).
+    For example: `pop rsp` or `pop esp`.
+    """
 
     @classmethod
-    def fromint(cls, value: int):
-        """Cast an integer to InstructionGroup type"""
-        # Return an invalid group if cast is not possible
-        try:
-            return InstructionGroup(value)
-        except ValueError:
-            return InstructionGroup.GRP_INVALID
-
-    @classmethod
-    def from_capstone(cls, capstone_group: int):
+    def from_capstone(cls, capstone_arch: int, capstone_group: int):
         """Cast a capstone group to InstructionGroup type"""
-        # Wrap capstone group using our custom type
-        # Note: This only works because the mappings between the enums are the same
-        try:
-            return InstructionGroup(capstone_group)
-        except ValueError:
-            # Log once the unsupported
-            log_once(
-                logging.WARN,
-                f"Misalignment between capstone group {capstone_group} and InstructionGroup",
-            )
-            return InstructionGroup.GRP_INVALID
+        # Capstone architectures
+        CS_ARCH_X86 = 3
+
+        # Huge mapping from capstone groups to our custom type
+        match (capstone_arch, capstone_group):
+            case _, 0:
+                return InstructionGroup.INVALID
+            case _, 1:
+                return InstructionGroup.JUMP
+            case _, 2:
+                return InstructionGroup.CALL
+            case _, 3:
+                return InstructionGroup.RET
+            case _, 4:
+                return InstructionGroup.INT
+            case _, 5:
+                return InstructionGroup.IRET
+            case _, 6:
+                return InstructionGroup.PRIVILEGE
+            case _, 7:
+                return InstructionGroup.BRANCH_RELATIVE
+            case CS_ARCH_X86, 130:  # X86_GRP_AES
+                return InstructionGroup.AES
+            case CS_ARCH_X86, 145:  # X86_GRP_MODE64
+                return InstructionGroup.MODE64
+            case _:
+                # Log once the unsupported
+                log_once(
+                    logging.WARN,
+                    f"Misalignment between capstone group {capstone_group} ({capstone_arch=}) "
+                    "and InstructionGroup",
+                )
+                return InstructionGroup.GRP_INVALID
