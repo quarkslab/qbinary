@@ -51,6 +51,27 @@ def _get_capstone_disassembler(binexport_arch: str, mode: int = 0):
         f"Cannot instantiate a capstone disassembler from architecture {binexport_arch}"
     )
 
+def _is_same_mnemonic(mnemonic1: str, mnemonic2: str) -> bool:
+    """Check whether two mnemonics are the same"""
+
+    def normalize(mnemonic: str) -> str:
+        if mnemonic == "ldmia":
+            return "ldm"
+        return mnemonic.replace("lo", "cc")
+
+    mnemonic1 = normalize(mnemonic1)
+    mnemonic2 = normalize(mnemonic2)
+
+    if mnemonic1 == mnemonic2:
+        return True
+
+    if len(mnemonic1) > len(mnemonic2):
+        mnemonic1, mnemonic2 = mnemonic2, mnemonic1
+    if mnemonic1 + ".w" == mnemonic2:
+        return True
+
+    return False
+
 
 class BasicBlockBinExport(BasicBlock):
     __slots__ = ("_program", "_be_block", "_cached_properties")
@@ -104,7 +125,7 @@ class BasicBlockBinExport(BasicBlock):
             try:
                 instr = next(disasm)
                 # Check if the mnemonic is the same
-                if is_same_mnemonic(instr.mnemonic, mnemonic):
+                if _is_same_mnemonic(instr.mnemonic, mnemonic):
                     return capstone_mode
             except StopIteration:
                 pass
