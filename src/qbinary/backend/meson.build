@@ -8,3 +8,4 @@ py.install_sources(
 )
 
 subdir('binexport')
+subdir('quokka')
