@@ -20,7 +20,6 @@ from __future__ import annotations
 from functools import reduce
 from typing import TYPE_CHECKING
 from qbinary.instruction import Instruction
-from qbinary.operand import Operand
 from qbinary.backend.binexport.operand import OperandBinExport
 
 from qbinary.utils import cached_property
@@ -56,6 +55,6 @@ class InstructionBinExport(Instruction):
         self.id = self._cs_instr.id
 
     @cached_property
-    def operands(self) -> list[Operand]:  # type: ignore[override]
+    def operands(self) -> list[OperandBinExport]:  # type: ignore[override]
         """Returns the list of operands as Operand object."""
         return [OperandBinExport(self._cs, o) for i, o in enumerate(self._cs_instr.operands)]
