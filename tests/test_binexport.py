@@ -40,3 +40,7 @@ class TestBinExport:
 
                         for operand in instr.operands:
                             pass
+            
+            # Force a preload
+            for _ in fun.items():
+                pass
