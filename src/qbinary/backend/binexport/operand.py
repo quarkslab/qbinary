@@ -196,17 +196,12 @@ def _convert_operand_type(arch: capstoneArch, cs_operand: capstoneOperand) -> Op
 class OperandBinExport(Operand):
     __slots__ = ("_str_repr",)
 
-    def __init__(
-        self,
-        cs: capstone.Cs,
-        cs_instr: capstone.CsInsn,
-        cs_operand: capstoneOperand,
-        cs_operand_position: int,
-    ):
+    def __init__(self, cs: capstone.Cs, cs_operand: capstoneOperand):
         super().__init__()
 
         # Private attributes
-        self._str_repr = cs_instr.op_str.split(",")[cs_operand_position].strip()
+        # TODO implement a real string representation of the operand
+        self._str_repr = "Operand"
 
         # Public attributes
         # Convert the capstone operand type

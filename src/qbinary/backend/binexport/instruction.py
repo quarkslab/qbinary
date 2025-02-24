@@ -58,7 +58,4 @@ class InstructionBinExport(Instruction):
     @cached_property
     def operands(self) -> list[Operand]:  # type: ignore[override]
         """Returns the list of operands as Operand object."""
-        return [
-            OperandBinExport(self._cs, self._cs_instr, o, i)
-            for i, o in enumerate(self._cs_instr.operands)
-        ]
+        return [OperandBinExport(self._cs, o) for i, o in enumerate(self._cs_instr.operands)]
