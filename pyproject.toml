@@ -25,6 +25,10 @@ binexport = [
     "python-binexport>=0.3.2",
     "capstone>=5.0.1",
 ]
+quokka = [
+    "quokka-project>=0.6.0",
+    "pypcode",
+]
 dev = ["tox"]
 
 [tool.black]
