@@ -110,6 +110,10 @@ class InstructionGroup(enum.IntFlag, boundary=enum.STRICT):
     (but they have counterparts for different bitnesses).
     For example: `pop rsp` or `pop esp`.
     """
+    COMPARE_MOV = enum.auto()  # doc: Perform a move operation depending on some flags
+    SSE1 = enum.auto()  # doc: Instructions part of the SSE (first version) instruction set
+    SSE2 = enum.auto()  # doc: Instructions part of the SSE2 instruction set
+    FPU = enum.auto()  # doc: Instructions that handle Floating Point operands/data
 
     @classmethod
     @cache
@@ -140,6 +144,14 @@ class InstructionGroup(enum.IntFlag, boundary=enum.STRICT):
                 return InstructionGroup.AES
             case CS_ARCH_X86, 145:  # X86_GRP_MODE64
                 return InstructionGroup.MODE64
+            case CS_ARCH_X86, 137:  # X86_GRP_CMOV
+                return InstructionGroup.COMPARE_MOV
+            case CS_ARCH_X86, 148:  # X86_GRP_SSE1
+                return InstructionGroup.SSE1
+            case CS_ARCH_X86, 149:  # X86_GRP_SSE2
+                return InstructionGroup.SSE2
+            case CS_ARCH_X86, 169:  # X86_GRP_FPU
+                return InstructionGroup.FPU
             case _:
                 # Log once the unsupported
                 log_once(
