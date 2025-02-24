@@ -16,12 +16,7 @@
 
 Contains the tests for the BinExport backend"""
 
-# import json
-# from pathlib import Path
-
 from qbinary import Program
-
-# BASE_TEST_PATH = Path("tests/data")
 
 
 class TestBinExport:
