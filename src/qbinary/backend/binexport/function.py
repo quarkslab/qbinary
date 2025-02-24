@@ -64,6 +64,7 @@ class FunctionBinExport(Function):
         self._program = program
         # The basic blocks are lazily loaded
         self._blocks: dict[Addr, BasicBlockBinExport] | None = None
+        self._cached_properties = {}
 
         # Public attributes
         self.addr = self._be_func.addr
