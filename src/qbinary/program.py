@@ -120,24 +120,23 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
                 logging.error(f"Could not infer the backend from the provided path {path}")
 
         # Match the resulting backend
-        match backend:
-            case BackendType.ida:
-                from qbinary.backend.ida import ProgramIDA
+        if backend == BackendType.ida:
+            from qbinary.backend.ida import ProgramIDA
 
-                return ProgramIDA(*args, **kwargs)
+            return ProgramIDA(*args, **kwargs)
 
-            case BackendType.binexport:
-                from qbinary.backend.binexport import ProgramBinExport
+        elif backend == BackendType.binexport:
+            from qbinary.backend.binexport import ProgramBinExport
 
-                return ProgramBinExport(*args, **kwargs)
+            return ProgramBinExport(*args, **kwargs)
 
-            case BackendType.quokka:
-                from qbinary.backend.quokka import ProgramQuokka
+        elif backend == BackendType.quokka:
+            from qbinary.backend.quokka import ProgramQuokka
 
-                return ProgramQuokka(*args, **kwargs)
+            return ProgramQuokka(*args, **kwargs)
 
-            case _:
-                raise NotImplementedError(f"Backend {backend} not implemented")
+        else:
+            raise NotImplementedError(f"Backend {backend} not implemented")
 
     @staticmethod
     def from_binexport(
