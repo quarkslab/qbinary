@@ -30,7 +30,6 @@ class cached_property:
     """
 
     def __init__(self, func):
-        self.func = func
         self.attrname = None
         functools.update_wrapper(self, func)
 
@@ -51,6 +50,8 @@ class cached_property:
                 "Cannot use cached_property instance without calling __set_name__ on it."
             )
         try:
+            if not hasattr(instance, "_cached_properties"):
+                instance._cached_properties = {}
             cache = getattr(instance, "_cached_properties")
         except AttributeError:
             msg = (
@@ -60,7 +61,7 @@ class cached_property:
             raise TypeError(msg) from None
         val = cache.get(self.attrname, _NOT_FOUND)
         if val is _NOT_FOUND:
-            val = self.func(instance)
+            val = self.__wrapped__(instance)
             cache[self.attrname] = val
         return val
 
