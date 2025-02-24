@@ -32,11 +32,11 @@ if TYPE_CHECKING:
 
 
 class FunctionBinExport(Function):
-    __slots__ = ("_be_func", "_program", "__enable_unloading", "_blocks", "_cached_properties")
+    __slots__ = ("_be_func", "_program", "__enable_unloading", "_blocks")
 
     @classmethod
     @cache
-    def _function_type_mapping(cls, be_type: binexport.FunctionType) -> FunctionType:
+    def _convert_function_type(cls, be_type: binexport.FunctionType) -> FunctionType:
         if be_type == binexport.types.FunctionType.NORMAL:
             return FunctionType.normal
         elif be_type == binexport.types.FunctionType.LIBRARY:
@@ -63,7 +63,6 @@ class FunctionBinExport(Function):
         self._program = program
         # The basic blocks are lazily loaded
         self._blocks: dict[Addr, BasicBlockBinExport] | None = None
-        self._cached_properties = {}
 
         # Public attributes
         self.addr = self._be_func.addr
@@ -71,7 +70,7 @@ class FunctionBinExport(Function):
         self.flowgraph = self._be_func.graph
         self.parents = {func.addr for func in self._be_func.parents}
         self.children = {func.addr for func in self._be_func.children}
-        self.type = self._function_type_mapping(self._be_func.type)
+        self.type = self._convert_function_type(self._be_func.type)
 
     def __enter__(self) -> None:
         """
