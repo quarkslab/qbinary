@@ -45,6 +45,7 @@ class InstructionBinExport(Instruction):
         # Public attributes
         self.comment = ""  # Not supported
         self.mnemonic = self._cs_instr.mnemonic
+        self.disasm = f"{self.mnemonic} {self._cs_instr.op_str}"
         self.groups = reduce(
             lambda x, y: x | y,
             map(lambda g: InstructionGroup.from_capstone(self._cs.arch, g), self._cs_instr.groups),

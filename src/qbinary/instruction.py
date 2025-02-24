@@ -32,10 +32,11 @@ class Instruction(metaclass=ABCMetaAttributes):
     This is an abstract class and should not be used as is.
     """
 
-    __slots__ = ("addr", "mnemonic", "id", "comment", "bytes", "groups")
+    __slots__ = ("addr", "mnemonic", "id", "comment", "bytes", "groups", "disasm")
 
     addr: Addr  # The address of the instruction
     mnemonic: str  # The instruction mnemonic as a string
+    disasm: str # The disassembly string representation
     id: int
     """
     The instruction ID as a non negative int.
@@ -59,7 +60,7 @@ class Instruction(metaclass=ABCMetaAttributes):
         return f"<{type(self).__name__}: {self}>"
 
     def __str__(self) -> str:
-        return f"{self.mnemonic} {', '.join(str(op) for op in self.operands)}"
+        return f"{self.disasm}"
 
     # @cached_property
     # def references(self) -> dict[ReferenceType, list[ReferenceTarget]]:
