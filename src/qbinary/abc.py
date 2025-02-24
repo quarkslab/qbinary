@@ -32,7 +32,8 @@ class ABCMetaAttributes(ABCMeta):
                     name
                     for pcls in cls.mro()
                     for name in getattr(pcls, "__slots__", "")
-                    if not hasattr(instance, name)
+                    # Ignore class specific attributes (starting with __)
+                    if not (name.startswith("__") or hasattr(instance, name))
                 }
             )
             if abstract_attributes:
