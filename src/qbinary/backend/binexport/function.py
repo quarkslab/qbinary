@@ -23,13 +23,12 @@ from functools import cache
 from typing import TYPE_CHECKING, cast
 from qbinary.function import Function
 from qbinary.backend.binexport.basic_block import BasicBlockBinExport
-from qbinary.types import FunctionType
+from qbinary.types import FunctionType, Addr
 
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, ItemsView
     from qbinary.backend.binexport.program import ProgramBinExport
-    from qbinary.types import Addr
 
 
 class FunctionBinExport(Function):
