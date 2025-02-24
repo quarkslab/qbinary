@@ -36,7 +36,7 @@ class Instruction(metaclass=ABCMetaAttributes):
 
     addr: Addr  # The address of the instruction
     mnemonic: str  # The instruction mnemonic as a string
-    disasm: str # The disassembly string representation
+    disasm: str  # The disassembly string representation
     id: int
     """
     The instruction ID as a non negative int.
