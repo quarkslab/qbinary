@@ -19,6 +19,10 @@ QBinary is a framework meant to offer a stable universal API over binaries.
 
 from qbinary.__version__ import __version__
 from qbinary.program import Program
+from qbinary.function import Function
+from qbinary.basic_block import BasicBlock
+from qbinary.instruction import Instruction
+from qbinary.operand import Operand
 from qbinary.types import (
     ProgramCapability,
     OperandType,
@@ -29,6 +33,10 @@ from qbinary.types import (
 
 __all__ = [
     "Program",
+    "Function",
+    "BasicBlock",
+    "Instruction",
+    "Operand",
     "ProgramCapability",
     "OperandType",
     "FunctionType",
