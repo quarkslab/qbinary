@@ -21,6 +21,7 @@ used by qbinary.
 from __future__ import annotations
 import enum
 import enum_tools.documentation, logging
+from functools import cache
 from typing import TYPE_CHECKING
 from qbinary.utils import log_once
 
@@ -111,6 +112,7 @@ class InstructionGroup(enum.IntFlag, boundary=enum.STRICT):
     """
 
     @classmethod
+    @cache
     def from_capstone(cls, capstone_arch: int, capstone_group: int):
         """Cast a capstone group to InstructionGroup type"""
         # Capstone architectures

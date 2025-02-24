@@ -19,6 +19,7 @@ Contains the FunctionBinExport implementation"""
 from __future__ import annotations
 import weakref
 import binexport  # type: ignore[import-untyped]
+from functools import cache
 from typing import TYPE_CHECKING, cast
 from qbinary.function import Function
 from qbinary.backend.binexport.basic_block import BasicBlockBinExport
@@ -32,7 +33,23 @@ if TYPE_CHECKING:
 
 
 class FunctionBinExport(Function):
-    __slots__ = ("_be_func", "_program", "__enable_unloading", "_blocks")
+    __slots__ = ("_be_func", "_program", "__enable_unloading", "_blocks", "_cached_properties")
+
+    @classmethod
+    @cache
+    def _function_type_mapping(cls, be_type: binexport.FunctionType) -> FunctionType:
+        if be_type == binexport.types.FunctionType.NORMAL:
+            return FunctionType.normal
+        elif be_type == binexport.types.FunctionType.LIBRARY:
+            return FunctionType.library
+        elif be_type == binexport.types.FunctionType.IMPORTED:
+            return FunctionType.imported
+        elif be_type == binexport.types.FunctionType.THUNK:
+            return FunctionType.thunk
+        elif be_type == binexport.types.FunctionType.INVALID:
+            return FunctionType.invalid
+        else:
+            raise NotImplementedError(f"Function type {be_type} not implemented")
 
     def __init__(
         self, program: weakref.ref[ProgramBinExport], be_func: binexport.function.FunctionBinExport
@@ -54,19 +71,7 @@ class FunctionBinExport(Function):
         self.flowgraph = self._be_func.graph
         self.parents = {func.addr for func in self._be_func.parents}
         self.children = {func.addr for func in self._be_func.children}
-        match self._be_func.type:
-            case binexport.types.FunctionType.NORMAL:
-                self.type = FunctionType.normal
-            case binexport.types.FunctionType.LIBRARY:
-                self.type = FunctionType.library
-            case binexport.types.FunctionType.IMPORTED:
-                self.type = FunctionType.imported
-            case binexport.types.FunctionType.THUNK:
-                self.type = FunctionType.thunk
-            case binexport.types.FunctionType.INVALID:
-                self.type = FunctionType.invalid
-            case _:
-                raise NotImplementedError(f"Function type {self._be_func.type} not implemented")
+        self.type = self._function_type_mapping(self._be_func.type)
 
     def __enter__(self) -> None:
         """
