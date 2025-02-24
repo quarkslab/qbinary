@@ -18,12 +18,16 @@ Contains the OperandBinExport implementation"""
 
 from __future__ import annotations
 import capstone  # type: ignore[import-untyped]
-from typing import Any, TypeAlias
+from typing import TYPE_CHECKING
 from qbinary.operand import Operand
 from qbinary.types import OperandType
 
-capstoneArch: TypeAlias = int  # Relaxed typing
-capstoneOperand: TypeAlias = Any  # Relaxed typing
+
+if TYPE_CHECKING:
+    from typing import Any, TypeAlias
+
+    capstoneArch: TypeAlias = int  # Relaxed typing
+    capstoneOperand: TypeAlias = Any  # Relaxed typing
 
 
 _OPERAND_TYPE_MAPPING = {
