@@ -49,6 +49,7 @@ class InstructionBinExport(Instruction):
         self.groups = reduce(
             lambda x, y: x | y,
             map(lambda g: InstructionGroup.from_capstone(self._cs.arch, g), self._cs_instr.groups),
+            InstructionGroup(0),
         )
         self.addr = self._cs_instr.address
         self.bytes = bytes(self._cs_instr.bytes)
