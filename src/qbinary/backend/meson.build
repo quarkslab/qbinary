@@ -1,8 +1,5 @@
 python_sources = [files(
     '__init__.py',
-    # 'abstract.py',
-    # 'ida.py',
-    # 'quokka.py',
 )]
 
 py.install_sources(
