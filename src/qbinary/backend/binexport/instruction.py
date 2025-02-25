@@ -17,7 +17,6 @@
 Contains the InstructionBinExport implementation"""
 
 from __future__ import annotations
-from functools import reduce
 from typing import TYPE_CHECKING
 from qbinary.instruction import Instruction
 from qbinary.backend.binexport.operand import OperandBinExport
@@ -27,34 +26,29 @@ from qbinary.types import InstructionGroup
 
 
 if TYPE_CHECKING:
-    import capstone  # type: ignore[import-untyped]
+    import binexport  # type: ignore[import-untyped]
 
 
 class InstructionBinExport(Instruction):
-    __slots__ = ("_cached_properties", "_cs", "_cs_instr")
+    __slots__ = ("_cached_properties", "_be_instr")
 
-    def __init__(self, cs: capstone.Cs, cs_instruction: capstone.CsInsn):
+    def __init__(self, be_instr: binexport.InstructionBinExport):
         super().__init__()
 
         # Private attributes
-        self._cs = cs
-        self._cs_instr = cs_instruction
+        self._be_instr = be_instr
         self._cached_properties: dict = {}
 
         # Public attributes
         self.comment = ""  # Not supported
-        self.mnemonic = self._cs_instr.mnemonic
-        self.disasm = f"{self.mnemonic} {self._cs_instr.op_str}"
-        self.groups = reduce(
-            lambda x, y: x | y,
-            map(lambda g: InstructionGroup.from_capstone(self._cs.arch, g), self._cs_instr.groups),
-            InstructionGroup(0),
-        )
-        self.addr = self._cs_instr.address
-        self.bytes = bytes(self._cs_instr.bytes)
-        self.id = self._cs_instr.id
+        self.mnemonic = self._be_instr.mnemonic
+        self.disasm = self._be_instr.disasm
+        self.groups = InstructionGroup(0)  # Not supported
+        self.addr = self._be_instr.addr
+        self.bytes = self._be_instr.bytes
+        self.id = self._be_instr._idx  # TODO Only god knows what to put here
 
     @cached_property
     def operands(self) -> list[OperandBinExport]:  # type: ignore[override]
         """Returns the list of operands as Operand object."""
-        return [OperandBinExport(self._cs, o) for o in self._cs_instr.operands]
+        return [OperandBinExport(op) for op in self._be_instr.operands]

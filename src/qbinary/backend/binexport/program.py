@@ -25,6 +25,7 @@ from multimethod import multimethod
 
 from qbinary.program import Program
 from qbinary.backend.binexport.function import FunctionBinExport
+from qbinary.utils import cached_property
 from qbinary.types import ProgramCapability
 
 if TYPE_CHECKING:
@@ -73,16 +74,47 @@ def _parse_architecture_flag(arch_mode_str: str) -> capstone.Cs | None:
     return cs
 
 
+def _get_capstone_disassembler(binexport_arch: str, mode: int = 0):
+    # Lazy import
+    import capstone  # type: ignore[import-untyped]
+
+    def capstone_context(arch, mode):
+        context = capstone.Cs(arch, mode)
+        context.detail = True
+        return context
+
+    if binexport_arch == "x86-32" or binexport_arch == "x86":
+        return capstone_context(capstone.CS_ARCH_X86, capstone.CS_MODE_32 | mode)
+    elif binexport_arch == "x86-64":
+        return capstone_context(capstone.CS_ARCH_X86, capstone.CS_MODE_64 | mode)
+    elif binexport_arch == "ARM-32":
+        return capstone_context(capstone.CS_ARCH_ARM, mode)
+    elif binexport_arch == "ARM-64":
+        return capstone_context(capstone.CS_ARCH_ARM64, mode)
+    elif binexport_arch == "MIPS-32":
+        return capstone_context(capstone.CS_ARCH_MIPS, capstone.CS_MODE_32 | mode)
+    elif binexport_arch == "MIPS-64":
+        return capstone_context(capstone.CS_ARCH_MIPS, capstone.CS_MODE_64 | mode)
+
+    raise NotImplementedError(
+        f"Cannot instantiate a capstone disassembler from architecture {binexport_arch}"
+    )
+
+
 class ProgramBinExport(Program):
     """
     Program specialization that uses the BinExport backend.
 
     :param file: The path to the .BinExport exported file
-    :param arch: The architecture details (as in capstone) of the binary
+    :param arch: The architecture details (as in capstone) of the binary.
+        Only meaningful if capstone is used
     :param exec_path: The raw binary file path
+    :param use_capstone: Use the capstone backend to disassemble instructions
+        instead of relying on the BinExport'ed data. Capstone will be used only
+        at the instruction and operand level.
     """
 
-    __slots__ = ("_be_prog", "architecture_name", "cs", "_functions")
+    __slots__ = ("_be_prog", "architecture_name", "_functions", "_cached_properties", "_cs_arch")
 
     def __init__(self, file: str, *, arch: str | None = None, exec_path: str | None = None):
         super().__init__()
@@ -90,6 +122,8 @@ class ProgramBinExport(Program):
         # Private attributes
         self._be_prog = binexport.ProgramBinExport(file)
         self._functions: dict[Addr, FunctionBinExport] = {}  # dictionary containing the functions
+        self._cached_properties: dict = {}
+        self._cs_arch = arch
 
         # Public attributes
         self.name = self._be_prog.name
@@ -101,22 +135,7 @@ class ProgramBinExport(Program):
         self.func_names = {}
         self.callgraph = self._be_prog.callgraph
         self.capabilities = ProgramCapability.INSTR_GROUP
-        self.cs = None  #: Capstone disassembler context
         self.architecture_name = self._be_prog.architecture  #: BinExport architecture name
-
-        # Check if the architecture is set by the user
-        if arch:
-            # Parse the architecture
-            self.cs = _parse_architecture_flag(arch)
-            if not self.cs:
-                raise Exception(f"Unable to instantiate capstone context from given arch: {arch}")
-        else:
-            logging.info(
-                "No architecture set but BinExport backend is used. If invalid instructions"
-                " are found consider setting manually the architecture"
-            )
-            # self.cs will be set at basic block level
-            # self.cs = _get_capstone_disassembler(self.be_prog.architecture)
 
         self._load_functions()
 
@@ -151,6 +170,38 @@ class ProgramBinExport(Program):
             f = FunctionBinExport(weakref.ref(self), func)
             self._functions[f.addr] = f
             self.func_names[f.name] = f.addr
+
+    @cached_property
+    def cs(self) -> capstone.Cs:
+        """
+        Returns the capstone disassembler context object
+        """
+
+        if self._cs_arch:  # Check if the architecture is set by the user
+            # Parse the architecture
+            cs = _parse_architecture_flag(self._cs_arch)
+            if not cs:
+                raise Exception(
+                    f"Unable to instantiate capstone context from given arch: {self._cs_arch}"
+                )
+            return cs
+        else:  # Continue with the old method
+            # No need to guess the context for these arch
+            if self._be_prog.architecture not in (
+                "x86",
+                "x86-32",
+                "x86-64",
+                "MIPS-32",
+                "MIPS-64",
+                "ARM-64",
+            ):
+                raise ValueError(
+                    "Cannot instantiate the capstone disassembler context by deriving the "
+                    f"architecture and mode from BinExport ({self._be_prog.architecture}). "
+                    "Consider setting manually the configuration by passing the 'arch' attribute "
+                    "in the ProgramBinExport constructor"
+                )
+            return _get_capstone_disassembler(self._be_prog.architecture)
 
     # @property
     # def structures(self) -> list[Structure]:
