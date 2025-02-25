@@ -22,6 +22,7 @@ from abc import abstractmethod
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 from qbinary.abc import ABCMetaAttributes
+from qbinary.types import FunctionType
 
 
 if TYPE_CHECKING:
@@ -29,7 +30,7 @@ if TYPE_CHECKING:
     from networkx.classes.reportviews import OutEdgeView
     from collections.abc import Iterator, ItemsView
     from qbinary.basic_block import BasicBlock
-    from qbinary.types import FunctionType, Addr
+    from qbinary.types import Addr
 
 
 class Function(Mapping, metaclass=ABCMetaAttributes):
