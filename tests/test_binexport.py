@@ -40,7 +40,13 @@ class TestBinExport:
 
                         for operand in instr.operands:
                             pass
-            
+
+                    for instr in bb.capstone_instructions:
+                        assert bb.addr <= instr.addr < bb.addr + bb_size
+
+                        for operand in instr.operands:
+                            pass
+
             # Force a preload
             for _ in fun.items():
                 pass
