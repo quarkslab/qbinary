@@ -37,7 +37,7 @@ class InstructionIDA(Instruction):
 
         # Private attributes
         self._ida_instr = ida_ua.insn_t()
-        ida_ua.decode_insn(ida_instr, addr)
+        ida_ua.decode_insn(self._ida_instr, addr)
         self._cached_properties: dict = {}
 
         # Public attributes
