@@ -26,8 +26,7 @@ binexport = [
     "capstone>=5.0.1",
 ]
 quokka = [
-    "quokka-project>=0.6.0",
-    "pypcode",
+    "quokka-project[pypcode]>=0.6.0",
 ]
 dev = ["tox"]
 
