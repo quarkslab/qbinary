@@ -28,6 +28,9 @@ binexport = [
 quokka = [
     "quokka-project[pypcode]>=0.6.0",
 ]
+ida = [
+    "networkx"
+]
 dev = ["tox"]
 
 [tool.black]
