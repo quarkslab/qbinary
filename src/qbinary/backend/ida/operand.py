@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""BinExport backend
+"""IDA backend
 
-Contains the OperandBinExport implementation"""
+Contains the OperandIDA implementation"""
 
 from __future__ import annotations
 import ida_ua, ida_lines  # type: ignore[import-not-found]
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
     from qbinary.types import Addr
 
 
-class OperandBinExport(Operand):
+class OperandIDA(Operand):
     __slots__ = ("_str_repr",)
 
     @classmethod
