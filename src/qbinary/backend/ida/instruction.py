@@ -17,7 +17,7 @@
 Contains the InstructionIDA implementation"""
 
 from __future__ import annotations
-import ida_bytes, ida_ua  # type: ignore[import-not-found]
+import idc, ida_bytes, ida_ua  # type: ignore[import-not-found]
 from typing import TYPE_CHECKING
 
 from qbinary.instruction import Instruction
