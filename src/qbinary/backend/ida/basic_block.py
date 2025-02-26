@@ -39,7 +39,7 @@ class BasicBlockIDA(BasicBlock):
         self._cached_properties: dict = {}
 
         # Public attributes
-        self.addr = start_addr.addr
+        self.addr = start_addr
         self.bytes = ida_bytes.get_bytes(self.addr, end_addr - self.addr)
 
     @cached_property
