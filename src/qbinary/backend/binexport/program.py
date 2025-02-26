@@ -109,9 +109,6 @@ class ProgramBinExport(Program):
     :param arch: The architecture details (as in capstone) of the binary.
         Only meaningful if capstone is used
     :param exec_path: The raw binary file path
-    :param use_capstone: Use the capstone backend to disassemble instructions
-        instead of relying on the BinExport'ed data. Capstone will be used only
-        at the instruction and operand level.
     """
 
     __slots__ = ("_be_prog", "architecture_name", "_functions", "_cached_properties", "_cs_arch")
