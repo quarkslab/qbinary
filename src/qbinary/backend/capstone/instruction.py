@@ -19,7 +19,7 @@ Contains the InstructionCapstone implementation"""
 from __future__ import annotations
 from functools import reduce
 from typing import TYPE_CHECKING
-from qbinary.instruction import Instruction
+from qbinary.instruction import Instruction, GroupCapability
 from qbinary.backend.capstone.operand import OperandCapstone
 
 from qbinary.utils import cached_property
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
     import capstone  # type: ignore[import-untyped]
 
 
-class InstructionCapstone(Instruction):
+class InstructionCapstone(Instruction, GroupCapability):
     __slots__ = ("_cached_properties", "_cs", "_cs_instr")
 
     def __init__(self, cs: capstone.Cs, cs_instruction: capstone.CsInsn):

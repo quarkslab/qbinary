@@ -20,7 +20,7 @@ from __future__ import annotations
 import logging
 from functools import reduce
 from typing import TYPE_CHECKING
-from qbinary.instruction import Instruction
+from qbinary.instruction import Instruction, PcodeCapability, GroupCapability
 from qbinary.backend.quokka.operand import OperandQuokka
 
 from qbinary.utils import cached_property
@@ -32,10 +32,8 @@ if TYPE_CHECKING:
     from pypcode import PcodeOp  # type: ignore[import-untyped]
 
 
-class InstructionQuokka(Instruction):
-    __slots__ = ("_cached_properties", "_qk_instr", "pcode_ops")
-
-    pcode_ops: list[PcodeOp]  # List of PcodeOp associated with the instruction
+class InstructionQuokka(Instruction, PcodeCapability, GroupCapability):
+    __slots__ = ("_cached_properties", "_qk_instr")
 
     def __init__(self, qk_instruction: quokka.instruction.Instruction):
         super().__init__()
@@ -67,9 +65,15 @@ class InstructionQuokka(Instruction):
             self.id = self._qk_instr.cs_inst.id
         self.addr = self._qk_instr.address
         self.bytes = self._qk_instr.bytes
-        self.pcode_ops = list(self._qk_instr.pcode_insts)
 
     @cached_property
     def operands(self) -> list[OperandQuokka]:  # type: ignore[override]
         """Returns the list of operands as Operand object."""
         return [OperandQuokka(op) for op in self._qk_instr.operands]
+
+    @cached_property
+    def pcode_ops(self) -> list[PcodeOp]:
+        """
+        List of pcode instructions associated with the current assembly instruction
+        """
+        return list(self._qk_instr.pcode_insts)

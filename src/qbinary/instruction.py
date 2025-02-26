@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING
 from qbinary.abc import ABCMetaAttributes
 
 if TYPE_CHECKING:
+    from pypcode import PcodeOp  # type: ignore[import-untyped]
     from qbinary.operand import Operand
     from qbinary.types import Addr, InstructionGroup
 
@@ -48,13 +49,6 @@ class Instruction(metaclass=ABCMetaAttributes):
     """
     comment: str  # The comment tied to the instruction
     bytes: bytes  # The bytes representation of the Instruction
-    groups: InstructionGroup
-    """
-    A set of groups of this instruction
-
-    .. warning::
-        Requires the INSTR_GROUP capability (see :py:class:`ProgramCapability`)
-    """
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: {self}>"
@@ -92,12 +86,32 @@ class Instruction(metaclass=ABCMetaAttributes):
         """
         raise NotImplementedError()
 
-    # @property
-    # def pcode_ops(self) -> list[PcodeOp]:
-    #     """
-    #     List of PcodeOp associated with the instruction.
 
-    #     .. warning::
-    #         Requires PCODE capability
-    #     """
-    #     return self._backend.pcode_ops
+class PcodeCapability(metaclass=ABCMetaAttributes):
+    """
+    Defines the interface when offering the PCODE capability.
+    This is an abstract class and should not be used as is.
+
+    .. warning::
+        Provides ProgramCapability.PCODE capability
+    """
+
+    @property
+    @abstractmethod
+    def pcode_ops(self) -> list[PcodeOp]:
+        """
+        List of pcode instructions associated with the current assembly instruction
+        """
+        raise NotImplementedError()
+
+
+class GroupCapability(metaclass=ABCMetaAttributes):
+    """
+    Defines the interface when offering the INSTR_GROUP capability.
+    This is an abstract class and should not be used as is.
+
+    .. warning::
+        Provides ProgramCapability.INSTR_GROUP capability (see :py:class:`ProgramCapability`)
+    """
+
+    groups: InstructionGroup  # The semantic groups this instruction belongs to
