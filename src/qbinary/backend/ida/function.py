@@ -58,9 +58,9 @@ class FunctionIDA(Function):
         self.addr = addr
         self.name = ida_funcs.get_func_name(self.addr)
         self.flowgraph = networkx.DiGraph()
-        self.parents = set(program().callgraph.predecessors(self.addr))
-        self.children = set(program().callgraph.successors(self.addr))
-        self.type = self._convert_function_type(program().import_manager)
+        self.parents = set(program().callgraph.predecessors(self.addr))  # type: ignore[union-attr]
+        self.children = set(program().callgraph.successors(self.addr))  # type: ignore[union-attr]
+        self.type = self._convert_function_type(program().import_manager)  # type: ignore[union-attr]
 
         self._load_cfg()
 
