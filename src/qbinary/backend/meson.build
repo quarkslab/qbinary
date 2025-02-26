@@ -9,3 +9,5 @@ py.install_sources(
 
 subdir('binexport')
 subdir('quokka')
+subdir('ida')
+subdir('capstone')
