@@ -72,7 +72,7 @@ class InstructionQuokka(Instruction, PcodeCapability, GroupCapability):
         return [OperandQuokka(op) for op in self._qk_instr.operands]
 
     @cached_property
-    def pcode_ops(self) -> list[PcodeOp]:
+    def pcode_ops(self) -> list[PcodeOp]:  # type: ignore[override]
         """
         List of pcode instructions associated with the current assembly instruction
         """
