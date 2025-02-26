@@ -59,7 +59,7 @@ class OperandBinExport(Operand):
 
         # Public attributes
         self.type = self._convert_operand_type(ida_operand.type)
-        self.value = ida_operand.value if self.is_immediate() else None
+        self.value = ida_operand.value if self.type == OperandType.immediate else None
 
     def __str__(self) -> str:
         return self._str_repr
