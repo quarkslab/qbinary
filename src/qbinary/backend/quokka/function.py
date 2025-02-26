@@ -88,7 +88,7 @@ class FunctionQuokka(Function):
         """
 
         self.__enable_unloading = False
-        self._preload()
+        self.preload()
 
     def __exit__(self, exc_type, exc_value, traceback) -> None:
         """
@@ -96,15 +96,15 @@ class FunctionQuokka(Function):
         """
 
         self.__enable_unloading = True
-        self._unload()
+        self.unload()
 
     def __getitem__(self, key: Addr) -> BasicBlockQuokka:
         if self._blocks is not None:
             return self._blocks[key]
 
-        self._preload()
+        self.preload()
         bb = self._blocks[key]  # type: ignore
-        self._unload()
+        self.unload()
         return bb
 
     def __iter__(self) -> Iterator[Addr]:
@@ -115,17 +115,17 @@ class FunctionQuokka(Function):
         if self._blocks is not None:
             yield from self._blocks.keys()
         else:
-            self._preload()
+            self.preload()
             yield from self._blocks.keys()  # type: ignore
-            self._unload()
+            self.unload()
 
     def __len__(self) -> int:
         if self._blocks is not None:
             return len(self._blocks)
 
-        self._preload()
+        self.preload()
         size = len(self._blocks)  # type: ignore
-        self._unload()
+        self.unload()
         return size
 
     def items(self) -> ItemsView[Addr, BasicBlockQuokka]:
@@ -138,13 +138,13 @@ class FunctionQuokka(Function):
         if self._blocks is not None:
             return self._blocks.items()
         else:
-            self._preload()
+            self.preload()
             # Store the basic blocks in a temporary variable
             blocks = cast(dict[Addr, BasicBlockQuokka], self._blocks)
-            self._unload()
+            self.unload()
             return blocks.items()
 
-    def _preload(self) -> None:
+    def preload(self) -> None:
         """Load in memory all the basic blocks"""
         self._blocks = {}
 
@@ -155,7 +155,7 @@ class FunctionQuokka(Function):
         for addr in self._qk_func.graph.nodes:
             self._blocks[addr] = BasicBlockQuokka(self._qk_func.get_block(addr))
 
-    def _unload(self) -> None:
+    def unload(self) -> None:
         """Unload from memory all the basic blocks"""
 
         if self.__enable_unloading:

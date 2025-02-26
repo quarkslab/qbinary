@@ -114,6 +114,16 @@ class Function(Mapping, metaclass=ABCMetaAttributes):
         raise NotImplementedError()
 
     @abstractmethod
+    def preload(self) -> None:
+        """Load in memory all the basic blocks"""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def unload(self) -> None:
+        """Unload from memory all the basic blocks"""
+        raise NotImplementedError()
+
+    @abstractmethod
     def items(self) -> ItemsView[Addr, BasicBlock]:
         """
         Returns a set-like object providing a view on the basic blocks
