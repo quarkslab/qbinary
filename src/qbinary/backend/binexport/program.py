@@ -134,7 +134,7 @@ class ProgramBinExport(Program):
         self.export_path = str(self._be_prog.path)
         self.func_names = {}
         self.callgraph = self._be_prog.callgraph
-        self.capabilities = ProgramCapability.INSTR_GROUP
+        self.capabilities = ProgramCapability(0)
         self.architecture_name = self._be_prog.architecture  #: BinExport architecture name
 
         self._load_functions()

@@ -22,7 +22,6 @@ from qbinary.instruction import Instruction
 from qbinary.backend.binexport.operand import OperandBinExport
 
 from qbinary.utils import cached_property
-from qbinary.types import InstructionGroup
 
 
 if TYPE_CHECKING:
@@ -43,7 +42,6 @@ class InstructionBinExport(Instruction):
         self.comment = ""  # Not supported
         self.mnemonic = self._be_instr.mnemonic
         self.disasm = self._be_instr.disasm
-        self.groups = InstructionGroup(0)  # Not supported
         self.addr = self._be_instr.addr
         self.bytes = self._be_instr.bytes
         self.id = self._be_instr._idx  # TODO Only god knows what to put here
