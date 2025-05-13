@@ -19,7 +19,7 @@ Contains the InstructionIDA implementation"""
 from __future__ import annotations
 from dataclasses import dataclass
 from functools import cached_property
-import idc, ida_bytes, ida_ua, idaapi  # type: ignore[import-not-found]
+import idc, ida_bytes, ida_ua  # type: ignore[import-not-found]
 from typing import TYPE_CHECKING
 
 from qbinary.instruction import Instruction
@@ -43,7 +43,6 @@ class InstructionIDAExtra:
     """
 
     ida_instr: ida_ua.insn_t  # IDA instruction
-    sdk_version: int  # IDA SDK version, following the IDA scheme (830, 900, ...)
 
     @cached_property
     def id(self):
@@ -68,9 +67,7 @@ class InstructionIDA(Instruction):
         self.disasm = idc.GetDisasm(addr)
         self.addr = addr
         self.bytes = ida_bytes.get_bytes(addr, self._ida_instr.size)
-        self.extra = InstructionIDAExtra(
-            ida_instr=self._ida_instr, sdk_version=idaapi.IDA_SDK_VERSION
-        )
+        self.extra = InstructionIDAExtra(ida_instr=self._ida_instr)
 
     @cached_property
     def operands(self) -> list[OperandIDA]:  # type: ignore[override]
