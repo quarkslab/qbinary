@@ -16,9 +16,11 @@
 
 Contains the tests for the Quokka backend"""
 
+import pytest
 from qbinary import Program
 
 
+@pytest.mark.quokka
 class TestQuokka:
     """Regression tests for Quokka backend"""
 
