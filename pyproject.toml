@@ -12,6 +12,10 @@ requires-python = ">=3.10"
 dependencies = [
     "multimethod",
     "enum_tools",
+    "python-binexport>=0.3.7",
+    "capstone>=5.0.1",
+    "quokka-project[pypcode]>=0.6.0",
+    "networkx"
 ]
 dynamic = ["version"]
 
@@ -21,18 +25,16 @@ Repository = "https://github.com/quarkslab/qbinary"
 Documentation = "https://github.com/quarkslab/qbinary"
 
 [project.optional-dependencies]
-binexport = [
-    "python-binexport>=0.3.2",
-    "capstone>=5.0.1",
-]
-quokka = [
-    "quokka-project[pypcode]>=0.6.0",
-]
-ida = [
-    "networkx"
-]
 dev = ["tox"]
 
 [tool.black]
 line-length = 100
 target-version = ['py313']
+
+[tool.pytest.ini_options]
+markers = [
+    "slow: marks tests as slow",
+    "binexport: marks tests that involve binexport",
+    "quokka: marks tests that involve quokka",
+    "capstone: marks tests that involve capstone",
+]
