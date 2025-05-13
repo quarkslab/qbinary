@@ -29,12 +29,16 @@ class Operand(metaclass=ABCMetaAttributes):
     """
     Representation of an operand of an assembly instruction.
     This is an abstract class and should not be used as is.
+
+    .. warning::
+        The operand interface is mostly specific to the backend used.
     """
 
-    __slots__ = ("type", "value")
+    __slots__ = ("type", "value", "extra")
 
     type: OperandType  # The operand type
     value: int | None  # The immediate value used by the operand. None if there isn't one
+    extra: Any | None  # Backend specific extra information. Interface not uniform across backends
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}:{self}>"

@@ -100,6 +100,10 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
 
         return self.callgraph.edges
 
+    #
+    ### Only static methods from here below, they are part of the Factory pattern
+    #
+
     @staticmethod
     def open(*args, backend: BackendType | None = None, **kwargs) -> Program:
         """

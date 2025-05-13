@@ -21,6 +21,14 @@ from abc import ABCMeta
 
 
 class ABCMetaAttributes(ABCMeta):
+    """
+    Meta class that, every time an object is instanciated, checks that all the
+    attributes defined in the __slots__ class attribute are in fact defined in
+    the object instanciated. Otherwise raises a NotImplementedError.
+    If an attribute defined in __slots__ starts with a double underscore __, then
+    it is ignored in the check. Those attributes are class specific and shouldn't be
+    considered as abstract attributes of the objects themselves.
+    """
     __cached_cls: set[type] = set()  # Caching classes to avoid overhead
 
     def __call__(cls, *args, **kwargs):

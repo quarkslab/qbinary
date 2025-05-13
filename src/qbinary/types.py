@@ -68,6 +68,8 @@ class ProgramCapability(enum.IntFlag):
 
     PCODE = enum.auto()
     INSTR_GROUP = enum.auto()
+    STRUCT = enum.auto()
+    CAPSTONE = enum.auto()
 
 
 @enum_tools.documentation.document_enum

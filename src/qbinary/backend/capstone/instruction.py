@@ -19,7 +19,7 @@ Contains the InstructionCapstone implementation"""
 from __future__ import annotations
 from functools import reduce
 from typing import TYPE_CHECKING
-from qbinary.instruction import Instruction, GroupCapability
+from qbinary.instruction import Instruction, GroupCapability, CapstoneCapability
 from qbinary.backend.capstone.operand import OperandCapstone
 
 from qbinary.utils import cached_property
@@ -30,31 +30,34 @@ if TYPE_CHECKING:
     import capstone  # type: ignore[import-untyped]
 
 
-class InstructionCapstone(Instruction, GroupCapability):
-    __slots__ = ("_cached_properties", "_cs", "_cs_instr")
+class InstructionCapstone(Instruction, GroupCapability, CapstoneCapability):
+    __slots__ = ("_cached_properties", "_cs")
 
     def __init__(self, cs: capstone.Cs, cs_instruction: capstone.CsInsn):
         super().__init__()
 
         # Private attributes
         self._cs = cs
-        self._cs_instr = cs_instruction
         self._cached_properties: dict = {}
 
         # Public attributes
+        self.capstone_instr = cs_instruction
         self.comment = ""  # Not supported
-        self.mnemonic = self._cs_instr.mnemonic
-        self.disasm = f"{self.mnemonic} {self._cs_instr.op_str}"
+        self.mnemonic = self.capstone_instr.mnemonic
+        self.disasm = f"{self.mnemonic} {self.capstone_instr.op_str}"
         self.groups = reduce(
             lambda x, y: x | y,
-            map(lambda g: InstructionGroup.from_capstone(self._cs.arch, g), self._cs_instr.groups),
+            map(
+                lambda g: InstructionGroup.from_capstone(self._cs.arch, g),
+                self.capstone_instr.groups,
+            ),
             InstructionGroup(0),
         )
-        self.addr = self._cs_instr.address
-        self.bytes = bytes(self._cs_instr.bytes)
-        self.id = self._cs_instr.id
+        self.addr = self.capstone_instr.address
+        self.bytes = bytes(self.capstone_instr.bytes)
+        self.extra = None
 
     @cached_property
     def operands(self) -> list[OperandCapstone]:  # type: ignore[override]
         """Returns the list of operands as Operand object."""
-        return [OperandCapstone(self._cs, o) for o in self._cs_instr.operands]
+        return [OperandCapstone(self._cs, o) for o in self.capstone_instr.operands]

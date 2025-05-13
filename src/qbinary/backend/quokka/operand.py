@@ -18,12 +18,26 @@ Contains the OperandQuokka implementation"""
 
 from __future__ import annotations
 from functools import cache
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from qbinary.operand import Operand
 from qbinary.types import OperandType
 
 if TYPE_CHECKING:
     import quokka  # type: ignore[import-untyped]
+
+
+@dataclass
+class OperandQuokkaExtra:
+    """
+    Provide extra information, specific to the Quokka backend.
+
+    .. warning::
+        This interface is specific to Quokka and is not uniform across backends.
+        The interface is NOT guaranteed to be backwards compatible.
+    """
+
+    quokka_operand: quokka.Operand  # The Quokka operand
 
 
 class OperandQuokka(Operand):
@@ -44,6 +58,7 @@ class OperandQuokka(Operand):
         # Public attributes
         self.type = self._convert_operand_type(qk_operand.type)
         self.value = qk_operand.value if self.type == OperandType.immediate else None
+        self.extra = OperandQuokkaExtra(quokka_operand=qk_operand)
 
     def __str__(self) -> str:
         return self._str_repr

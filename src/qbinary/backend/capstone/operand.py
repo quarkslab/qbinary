@@ -17,6 +17,7 @@
 Contains the OperandCapstone implementation"""
 
 from __future__ import annotations
+from dataclasses import dataclass
 import capstone  # type: ignore[import-untyped]
 from typing import TYPE_CHECKING
 from qbinary.operand import Operand
@@ -197,20 +198,29 @@ def _convert_operand_type(arch: capstoneArch, cs_operand: capstoneOperand) -> Op
     return operand_type
 
 
-class OperandCapstone(Operand):
-    __slots__ = ("_str_repr",)
+@dataclass
+class OperandCapstoneExtra:
+    """
+    Provide extra information, specific to the capstone backend.
 
+    .. warning::
+        This interface is specific to capstone and is not uniform across backends.
+        The interface is NOT guaranteed to be backwards compatible.
+    """
+
+    capstone_operand: capstoneOperand  # The capstone operand
+
+
+class OperandCapstone(Operand):
     def __init__(self, cs: capstone.Cs, cs_operand: capstoneOperand):
         super().__init__()
-
-        # Private attributes
-        # TODO implement a real string representation of the operand
-        self._str_repr = "Operand"
 
         # Public attributes
         # Convert the capstone operand type
         self.type = _convert_operand_type(cs.arch, cs_operand)
         self.value = cs_operand.value.imm if self.type == OperandType.immediate else None
+        self.extra = OperandCapstoneExtra(cs_operand)
 
     def __str__(self) -> str:
-        return self._str_repr
+        # TODO implement a real string representation of the operand
+        return "Operand"

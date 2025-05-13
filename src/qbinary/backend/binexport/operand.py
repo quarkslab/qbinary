@@ -17,6 +17,7 @@
 Contains the OperandBinExport implementation"""
 
 from __future__ import annotations
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 from qbinary.operand import Operand
 from qbinary.types import OperandType
@@ -24,6 +25,19 @@ from qbinary.types import OperandType
 
 if TYPE_CHECKING:
     import binexport  # type: ignore[import-untyped]
+
+
+@dataclass
+class OperandBinExportExtra:
+    """
+    Provide extra information, specific to the BinExport backend.
+
+    .. warning::
+        This interface is specific to BinExport and is not uniform across backends.
+        The interface is NOT guaranteed to be backwards compatible.
+    """
+
+    binexport_operand: binexport.OperandBinExport  # The binexport operand
 
 
 class OperandBinExport(Operand):
@@ -38,6 +52,7 @@ class OperandBinExport(Operand):
         # Public attributes
         self.type = OperandType.unknown  # TODO Maybe parse the expressions to get it?
         self.value = None  # TODO maybe just put the string?
+        self.extra = OperandBinExportExtra(binexport_operand=be_operand)
 
     def __str__(self) -> str:
         return self._str_repr

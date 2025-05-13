@@ -18,9 +18,10 @@ Contains the InstructionQuokka implementation"""
 
 from __future__ import annotations
 import logging
+from dataclasses import dataclass
 from functools import reduce
 from typing import TYPE_CHECKING
-from qbinary.instruction import Instruction, PcodeCapability, GroupCapability
+from qbinary.instruction import Instruction, PcodeCapability, GroupCapability, CapstoneCapability
 from qbinary.backend.quokka.operand import OperandQuokka
 
 from qbinary.utils import cached_property
@@ -28,11 +29,25 @@ from qbinary.types import InstructionGroup
 
 
 if TYPE_CHECKING:
-    import quokka  # type: ignore[import-untyped]
+    import capstone, quokka  # type: ignore[import-untyped]
     from pypcode import PcodeOp  # type: ignore[import-untyped]
 
 
-class InstructionQuokka(Instruction, PcodeCapability, GroupCapability):
+@dataclass
+class InstructionQuokkaExtra:
+    """
+    Provide extra information, specific to the Quokka backend.
+        The interface is guaranteed to be backwards compatible.
+
+    .. warning::
+        This interface is specific to the Quokka backend and is not uniform
+        across backends.
+    """
+
+    quokka_instr: quokka.Instruction  # Quokka instruction
+
+
+class InstructionQuokka(Instruction, PcodeCapability, GroupCapability, CapstoneCapability):
     __slots__ = ("_cached_properties", "_qk_instr")
 
     def __init__(self, qk_instruction: quokka.instruction.Instruction):
@@ -51,7 +66,7 @@ class InstructionQuokka(Instruction, PcodeCapability, GroupCapability):
             )
             self.disasm = f"{self.mnemonic}"
             self.groups = InstructionGroup(0)
-            self.id = 0  # TODO what to put here? Only god knows
+            self.capstone_instr = None
         else:
             self.disasm = f"{self.mnemonic} {self._qk_instr.cs_inst.op_str}"
             convert_group = lambda g: InstructionGroup.from_capstone(
@@ -62,9 +77,10 @@ class InstructionQuokka(Instruction, PcodeCapability, GroupCapability):
                 map(convert_group, self._qk_instr.cs_inst.groups),
                 InstructionGroup(0),
             )
-            self.id = self._qk_instr.cs_inst.id
         self.addr = self._qk_instr.address
         self.bytes = self._qk_instr.bytes
+        self.capstone_instr = self._qk_instr.cs_inst
+        self.extra = InstructionQuokkaExtra(quokka_instr=self._qk_instr)
 
     @cached_property
     def operands(self) -> list[OperandQuokka]:  # type: ignore[override]

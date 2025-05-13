@@ -17,7 +17,9 @@
 Contains the InstructionIDA implementation"""
 
 from __future__ import annotations
-import idc, ida_bytes, ida_ua  # type: ignore[import-not-found]
+from dataclasses import dataclass
+from functools import cached_property
+import idc, ida_bytes, ida_ua, idaapi  # type: ignore[import-not-found]
 from typing import TYPE_CHECKING
 
 from qbinary.instruction import Instruction
@@ -27,6 +29,26 @@ from qbinary.utils import cached_property
 
 if TYPE_CHECKING:
     from qbinary.types import Addr
+
+
+@dataclass
+class InstructionIDAExtra:
+    """
+    Provide extra information, specific to the IDA backend.
+
+    .. warning::
+        This interface is specific to the IDA backend and is not uniform
+        across backends.
+        The interface is NOT guaranteed to be backwards compatible.
+    """
+
+    ida_instr: ida_ua.insn_t  # IDA instruction
+    sdk_version: int  # IDA SDK version, following the IDA scheme (830, 900, ...)
+
+    @cached_property
+    def id(self):
+        """IDA instruction ID"""
+        return self.ida_instr.ityped
 
 
 class InstructionIDA(Instruction):
@@ -46,7 +68,9 @@ class InstructionIDA(Instruction):
         self.disasm = idc.GetDisasm(addr)
         self.addr = addr
         self.bytes = ida_bytes.get_bytes(addr, self._ida_instr.size)
-        self.id = self._ida_instr.itype
+        self.extra = InstructionIDAExtra(
+            ida_instr=self._ida_instr, sdk_version=idaapi.IDA_SDK_VERSION
+        )
 
     @cached_property
     def operands(self) -> list[OperandIDA]:  # type: ignore[override]

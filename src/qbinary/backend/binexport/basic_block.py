@@ -78,5 +78,6 @@ class BasicBlockBinExport(BasicBlock):
 
         return [
             InstructionCapstone(self.program.cs, instr)
-            for instr in self.program.cs.disasm(self._be_block.bytes, self.addr)
+            for rng_addr, rng_bytes in self._be_block.contiguous_ranges
+            for instr in self.program.cs.disasm(rng_bytes, rng_addr)
         ]

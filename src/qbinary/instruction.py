@@ -33,20 +33,12 @@ class Instruction(metaclass=ABCMetaAttributes):
     This is an abstract class and should not be used as is.
     """
 
-    __slots__ = ("addr", "mnemonic", "id", "comment", "bytes", "groups", "disasm")
+    __slots__ = ("addr", "mnemonic", "extra", "comment", "bytes", "disasm")
 
     addr: Addr  # The address of the instruction
     mnemonic: str  # The instruction mnemonic as a string
     disasm: str  # The disassembly string representation
-    id: int
-    """
-    The instruction ID as a non negative int.
-
-    ..  warning::
-        The backend is responsible for creating this value, different backends
-        should not be considered compatible between each other. (For example IDA
-        relies on IDA IDs while quokka relies on capstone IDs)
-    """
+    extra: Any | None  # Backend specific extra information. Interface not uniform across backends
     comment: str  # The comment tied to the instruction
     bytes: bytes  # The bytes representation of the Instruction
 
@@ -103,6 +95,26 @@ class PcodeCapability(metaclass=ABCMetaAttributes):
         List of pcode instructions associated with the current assembly instruction
         """
         raise NotImplementedError()
+
+
+class CapstoneCapability(metaclass=ABCMetaAttributes):
+    """
+    Defines the interface when offering the CAPSTONE capability.
+    This is an abstract class and should not be used as is.
+
+    .. warning::
+        Provides ProgramCapability.CAPSTONE capability
+    """
+
+    capstone_instr: capstone.CsInsn | None
+    """
+    The capstone instruction associated with the current instruction.
+    If it is None it means that capstone was not able to decode the current instruction.
+
+    .. warning::
+        There can be a mismatch between the capstone representation and the chosen
+        backend representation for the same instruction.
+    """
 
 
 class GroupCapability(metaclass=ABCMetaAttributes):
