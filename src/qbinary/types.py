@@ -19,8 +19,9 @@ used by qbinary.
 """
 
 from __future__ import annotations
-import enum
+import enum, weakref
 import enum_tools.documentation, logging
+from dataclasses import dataclass, field
 from functools import cache
 from typing import TYPE_CHECKING
 from qbinary.utils import log_once
@@ -32,6 +33,105 @@ Addr: TypeAlias = int
 """
 An integer representing an address within a program
 """
+
+
+class DataType(enum.Enum):
+    """Data Type"""
+
+    # TODO expand with the following:
+    # - composite types (union/structs)
+    # - enums
+    # - pointers
+    # - array
+    # - void
+    UNKNOWN = enum.auto()
+    BYTE = enum.auto()
+    WORD = enum.auto()
+    DOUBLE_WORD = enum.auto()
+    QUAD_WORD = enum.auto()
+    OCTO_WORD = enum.auto()
+    FLOAT = enum.auto()
+    DOUBLE = enum.auto()
+
+
+@dataclass(slots=True)
+class Enum:
+    """
+    Abstract representation of a C union type member field
+    """
+
+    name: str  # Name of the enum
+    size: int  # Base size in bytes for the enum
+    members: list[tuple[str, int]]  # The members of the enum, as a list of pairs (name, value)
+
+
+@dataclass(slots=True)
+class UnionMember:
+    """
+    Abstract representation of a C union type member field
+    """
+
+    name: str  # Name of the union member
+    type: DataType  # Type of the field
+    size: int  # Size in bits of the member
+    _parent_ref: weakref.ref[Union] = field(init=False, repr=False)
+
+    @property
+    def parent(self) -> Union:
+        return self._parent_ref()
+
+
+@dataclass(slots=True, weakref_slot=True)
+class Union:
+    """
+    Abstract representation of a C union type
+    """
+
+    name: str  # Name of the union
+    size: int  # The overall size in bytes of the whole union type
+    members: list[UnionMember]  # The union members, aka the fields of the union type
+
+    def __post_init__(self) -> None:
+        for member in self.members:
+            member._parent_ref = weakref.ref(self)
+
+
+@dataclass(slots=True)
+class StructureMember:
+    """
+    Abstract representation of a C struct type member field
+    """
+
+    offset: int  # The offset at which the member is placed within the parent struct
+    name: str  # Name of the member
+    type: DataType  # Type of the member
+    size: int  # The size in bits of the member
+    _parent_ref: weakref.ref[Structure] = field(init=False, repr=False)
+
+    @property
+    def parent(self) -> Structure:
+        return self._parent_ref()
+
+
+@dataclass(slots=True, weakref_slot=True)
+class Structure:
+    """
+    Abstract representation of a C struct type
+    """
+
+    name: str  # Name of the struct
+    size: int  # The overall size in bytes of the whole struct
+    members: list[StructureMember]  # The structure members, aka the fields of the struct type
+    _offset_map: dict[int, StructureMember] = field(init=False, repr=False, hash=False)
+
+    def __post_init__(self) -> None:
+        self._offset_map = {}
+        for member in self.members:
+            self._offset_map[member.offset] = member
+            member._parent_ref = weakref.ref(self)
+
+    def get_member_by_offset(self, offset: int) -> StructureMember | None:
+        return self._offset_map.get(offset)
 
 
 @enum_tools.documentation.document_enum
@@ -68,7 +168,7 @@ class ProgramCapability(enum.IntFlag):
 
     PCODE = enum.auto()
     INSTR_GROUP = enum.auto()
-    STRUCT = enum.auto()
+    COMPLEX_TYPES = enum.auto()
     CAPSTONE = enum.auto()
 
 

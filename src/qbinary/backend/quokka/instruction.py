@@ -48,7 +48,7 @@ class InstructionQuokkaExtra:
 
 
 class InstructionQuokka(Instruction, PcodeCapability, GroupCapability, CapstoneCapability):
-    __slots__ = ("_cached_properties", "_qk_instr")
+    __slots__ = ("groups", "capstone_instr", "_cached_properties", "_qk_instr")
 
     def __init__(self, qk_instruction: quokka.instruction.Instruction):
         super().__init__()

@@ -183,3 +183,20 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         """
 
         return Program.open(backend=BackendType.ida)
+
+
+class ComplexTypesCapability(metaclass=ABCMetaAttributes):
+    """
+    Defines the interface when offering the COMPLEX_TYPES capability.
+    Complex types are struct, union an enums.
+    This is an abstract class and should not be used as is.
+
+    .. warning::
+        Provides ProgramCapability.COMPLEX_TYPES capability (see :py:class:`ProgramCapability`)
+    """
+
+    __slots__ = ()
+
+    structures: list[Structure]  # The list of structures defined in the program
+    unions: list[qbinary.types.Union]  # The list of unions defined in the program
+    enums: list[Enums]  # The list of enums defined in the program

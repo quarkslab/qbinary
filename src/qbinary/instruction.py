@@ -88,6 +88,8 @@ class PcodeCapability(metaclass=ABCMetaAttributes):
         Provides ProgramCapability.PCODE capability
     """
 
+    __slots__ = ()
+
     @property
     @abstractmethod
     def pcode_ops(self) -> list[PcodeOp]:
@@ -105,6 +107,8 @@ class CapstoneCapability(metaclass=ABCMetaAttributes):
     .. warning::
         Provides ProgramCapability.CAPSTONE capability
     """
+
+    __slots__ = ()
 
     capstone_instr: capstone.CsInsn | None
     """
@@ -125,5 +129,7 @@ class GroupCapability(metaclass=ABCMetaAttributes):
     .. warning::
         Provides ProgramCapability.INSTR_GROUP capability (see :py:class:`ProgramCapability`)
     """
+
+    __slots__ = ()
 
     groups: InstructionGroup  # The semantic groups this instruction belongs to

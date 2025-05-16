@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 
 class InstructionCapstone(Instruction, GroupCapability, CapstoneCapability):
-    __slots__ = ("_cached_properties", "_cs")
+    __slots__ = ("groups", "capstone_instr", "_cached_properties", "_cs")
 
     def __init__(self, cs: capstone.Cs, cs_instruction: capstone.CsInsn):
         super().__init__()
