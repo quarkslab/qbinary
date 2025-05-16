@@ -18,6 +18,7 @@ Contains the tests for the unified interface of qbinary over any backend"""
 
 import pytest
 from pathlib import Path
+import qbinary
 from qbinary import Program
 from qbinary.backend.binexport import ProgramBinExport
 
@@ -99,6 +100,18 @@ class TestCommonInterface:
 
     def _test_common(self, program: Program) -> None:
         assert len(program) == len(program.keys()) == len(program.values()) == len(program.items())
+
+        # Test complex types
+        if program.capabilities & qbinary.ProgramCapability.COMPLEX_TYPES:
+            for struct in program.structures:
+                for member in struct.members:
+                    pass
+            for union in program.unions:
+                for member in union.members:
+                    pass
+            for enum in program.enums:
+                for member_name, member_val in enum.members:
+                    pass
 
         for fun_addr, fun in program.items():
             assert fun_addr == fun.addr
