@@ -199,12 +199,3 @@ class ProgramBinExport(Program):
                     "in the ProgramBinExport constructor"
                 )
             return _get_capstone_disassembler(self._be_prog.architecture)
-
-    # @property
-    # def structures(self) -> list[Structure]:
-    #     """
-    #     Returns the list of structures defined in program.
-    #     WARNING: Not supported by BinExport
-    #     """
-
-    #     return []  # Not supported
