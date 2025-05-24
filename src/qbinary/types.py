@@ -35,6 +35,40 @@ An integer representing an address within a program
 """
 
 
+class Disassembler(enum.Enum):
+    """
+    Enum of the different disassemblers supported by qbinary
+    """
+    AUTO = enum.auto()
+    IDA = enum.auto()
+    GHIDRA = enum.auto()
+    BINARY_NINJA = enum.auto()
+    IDAPYTHON = enum.auto()    # from within IDAPython
+
+
+class ExportFormat(enum.Enum):
+    """
+    Enum of the different export formats supported by qbinary.
+    Enum meant to be exposed and manipulated by users.
+    """
+    AUTO = enum.auto()
+    BINEXPORT = enum.auto()
+    QUOKKA = enum.auto()
+
+    @property
+    def extension(self) -> str:
+        """
+        Get the file extension for the export format
+        """
+        match self:
+            case ExportFormat.BINEXPORT:
+                return ".BinExport"
+            case ExportFormat.QUOKKA:
+                return ".quokka"
+            case _:
+                raise ".noext"
+
+
 class DataType(enum.Enum):
     """Data Type"""
 

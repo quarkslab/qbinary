@@ -18,7 +18,7 @@ Contains the FunctionIDA implementation"""
 
 from __future__ import annotations
 import weakref, networkx
-import ida_funcs, ida_gdl  # type: ignore[import-not-found]
+import ida_funcs, ida_gdl, ida_ida, ida_name  # type: ignore[import-not-found]
 from typing import TYPE_CHECKING, cast
 from qbinary.function import Function
 from qbinary.backend.ida.basic_block import BasicBlockIDA
@@ -56,7 +56,8 @@ class FunctionIDA(Function):
 
         # Public attributes
         self.addr = addr
-        self.name = ida_funcs.get_func_name(self.addr)
+        self.name = ida_name.get_demangled_name(self.addr, ida_ida.get_demnames(), 0)
+        self.mangled_name = ida_funcs.get_func_name(self.addr)
         self.flowgraph = networkx.DiGraph()
         self.parents = set(program().callgraph.predecessors(self.addr))  # type: ignore[union-attr]
         self.children = set(program().callgraph.successors(self.addr))  # type: ignore[union-attr]

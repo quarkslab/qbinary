@@ -24,7 +24,7 @@ from collections.abc import Mapping
 from typing import TYPE_CHECKING
 
 from qbinary.abc import ABCMetaAttributes
-from qbinary.types import BackendType
+from qbinary.types import BackendType, Disassembler, ExportFormat
 from qbinary.function import Function
 
 if TYPE_CHECKING:
@@ -115,10 +115,10 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         """
         # Try to infer it the correct backend
         if backend is None and len(args) > 0:
-            path = args[0].casefold()  # Assume that path is the first non-keyword argument
-            if path.endswith(".Quokka".casefold()):
+            path = args[0]  # Assume that path is the first non-keyword argument
+            if str(path).endswith(ExportFormat.QUOKKA.extension):
                 backend = BackendType.quokka
-            elif path.endswith(".BinExport".casefold()):
+            elif str(path).endswith(ExportFormat.BINEXPORT.extension):
                 backend = BackendType.binexport
             else:
                 logging.error(f"Could not infer the backend from the provided path {path}")
@@ -183,6 +183,17 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         """
 
         return Program.open(backend=BackendType.ida)
+
+    @staticmethod
+    def from_binary(file_path: str, disassembler: Disassembler, format: ExportFormat) -> Program | None:
+        """
+        Load the program using the binexport backend
+
+        :param file_path: File path to the binary
+        :return: Program instance
+        """
+        raise NotImplementedError("Loading a binary is not implemented yet")
+        # TODO: to implement
 
 
 class ComplexTypesCapability(metaclass=ABCMetaAttributes):

@@ -73,7 +73,7 @@ class Function(Mapping, metaclass=ABCMetaAttributes):
         func._unload()  # Unload the basic blocks
     """
 
-    __slots__ = ("addr", "name", "flowgraph", "parents", "children", "type")
+    __slots__ = ("addr", "name", "flowgraph", "parents", "children", "type", "mangled_name")
 
     addr: Addr  # Address of the beginning of the function
     name: str  # Name of the function
@@ -81,6 +81,7 @@ class Function(Mapping, metaclass=ABCMetaAttributes):
     parents: set[Addr]  # Set of parents in the call graph. Aka functions that call this function
     children: set[Addr]  # Set of functions called by this function in the call graph
     type: FunctionType  # Function type
+    mangled_name: str  # Mangled name of the function
 
     def __repr__(self) -> str:
         return f"<{type(self).__name__}: {self.addr:#x} - {self.name}>"
