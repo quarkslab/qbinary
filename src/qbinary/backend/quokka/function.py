@@ -65,6 +65,7 @@ class FunctionQuokka(Function):
         # Public attributes
         self.addr = self._qk_func.start
         self.name = self._qk_func.name
+        self.mangled_name = self._qk_func.mangled_name
         self.flowgraph = self._qk_func.graph
         self.type = self._convert_function_type(self._qk_func.type)
         self.parents = set()

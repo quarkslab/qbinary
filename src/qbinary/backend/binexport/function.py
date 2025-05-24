@@ -67,6 +67,7 @@ class FunctionBinExport(Function):
         # Public attributes
         self.addr = self._be_func.addr
         self.name = self._be_func.name
+        self.mangled_name = self.name  # BinExport doesn't mangled name
         self.flowgraph = self._be_func.graph
         self.parents = {func.addr for func in self._be_func.parents}
         self.children = {func.addr for func in self._be_func.children}
