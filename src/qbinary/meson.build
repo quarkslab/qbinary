@@ -2,6 +2,7 @@ python_sources = [files(
     '__init__.py',
     '__version__.py',
     'abc.py',
+    'disassembler.py',
     'program.py',
     'function.py',
     'basic_block.py',
