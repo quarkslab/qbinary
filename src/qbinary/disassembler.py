@@ -17,10 +17,16 @@
 Contains the abstraction layer to interact with disassemblers"""
 
 from __future__ import annotations
-import os, sys, pathlib, quokka, binexport
+import os, sys
+from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
+# third-party imports
+import quokka
+import binexport
+
+# local imports
 from qbinary.types import ExportFormat
 
 if TYPE_CHECKING:
@@ -31,9 +37,7 @@ class Disassembler(ABC):
 
     @staticmethod
     @abstractmethod
-    def from_binary(
-        binary_file: pathlib.Path | str, export_format: ExportFormat
-    ) -> pathlib.Path | None:
+    def from_binary(binary_file: Path | str, export_format: ExportFormat) -> Path | None:
         """
         Export the binary file provided using the specified format. It returns
         the exported file path or None when an error occurred
@@ -62,23 +66,27 @@ class Disassembler(ABC):
 class IDADisassembler(Disassembler):
 
     @staticmethod
-    def from_binary(binary_file: pathlib.Path | str, export_format: ExportFormat) -> str | None:
+    def from_binary(binary_file: Path | str, export_format: ExportFormat) -> Path | None:
         formats = [ExportFormat.QUOKKA, ExportFormat.BINEXPORT]
         if export_format != ExportFormat.AUTO:
             formats = [export_format]
 
         for format_try in formats:
             if format_try == ExportFormat.QUOKKA:
-                prog = quokka.Program.from_binary(file_path)
+                prog = quokka.Program.from_binary(binary_file)
                 if prog:
                     return prog.export_file
 
             elif format_try == ExportFormat.BINEXPORT:
+                export_path = Path(str(binary_file) + ".BinExport")
                 prog = binexport.ProgramBinExport.from_binary_file(
-                    file_path, backend=binexport.DisassemblerBackend.IDA
+                    binary_file,
+                    export_path,
+                    backend=binexport.DisassemblerBackend.IDA,
+                    open_export=False
                 )
                 if prog:
-                    return prog.export_file
+                    return export_path
             else:
                 raise ValueError(f"Unsupported binary exporter format {format_try}")
 
@@ -98,18 +106,18 @@ class IDADisassembler(Disassembler):
         if sys.platform == "win32":
             names = tuple(x + ".exe" for x in names)
 
-        def find_in_dir(d: pathlib.Path) -> str:
+        def find_in_dir(d: Path) -> str:
             for bin_name in names:
                 if (d / bin_name).exists():
                     return (d / bin_name).absolute().as_posix()
-            return None
+            return ""
 
         # Search for a IDA_PATH environment variable
         if "IDA_PATH" in os.environ:
-            return find_in_dir(pathlib.Path(os.environ["IDA_PATH"]))
+            return find_in_dir(Path(os.environ["IDA_PATH"]))
         elif "PATH" in os.environ:  # Iterate PATH (linux only)
             for p in os.environ["PATH"].split(":"):
-                if ida_path := find_in_dir(pathlib.Path(p)):
+                if ida_path := find_in_dir(Path(p)):
                     return ida_path
         return None
 
