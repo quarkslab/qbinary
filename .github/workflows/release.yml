@@ -4,6 +4,8 @@ on:
   release:
     types: [published]
 
+permissions: {}
+
 jobs:
   build_wheels_and_sdist:
     name: Build distribution wheels and sdist 📦
