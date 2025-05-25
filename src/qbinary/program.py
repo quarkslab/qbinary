@@ -222,17 +222,21 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
                  it was not possible to generate it. When open_export is False, it's a
                  boolean telling the outcome of the export.
         """
+        # select the export format
+        if export_format == ExportFormat.AUTO:
+            format_constraints = [ExportFormat.QUOKKA, ExportFormat.BINEXPORT]
+        else:
+            format_constraints = [export_format]  # use the one provided
 
-        format_constraints = [ExportFormat.QUOKKA, ExportFormat.BINEXPORT]
-        disassembler_constraints = [IDADisassembler, BNDisassembler, GhidraDisassembler]
-        if export_format != ExportFormat.AUTO:
-            format_constraints = [export_format]
-        if disassembler == Disassembler.IDA:
-            disassembler_constraints = [IDADisassembler]
-        elif disassembler == Disassembler.BINARY_NINJA:
-            disassembler_constraints = [BNDisassembler]
-        elif disassembler == Disassembler.GHIDRA:
-            disassembler_constraints = [GhidraDisassembler]
+        # select the disassembler
+        if disassembler == Disassembler.AUTO:  # predefined order
+            disassembler_constraints = [IDADisassembler, BNDisassembler, GhidraDisassembler]
+        else:
+            disassembler_constraints = [
+                {Disassembler.IDA: IDADisassembler,
+                 Disassembler.BINARY_NINJA: BNDisassembler,
+                 Disassembler.GHIDRA: GhidraDisassembler}[disassembler]
+            ]
 
         # Try until a good combination is found
         for format_try, disassembler_try in itertools.product(
