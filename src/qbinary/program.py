@@ -17,7 +17,7 @@
 Contains the abstraction layer to a Program"""
 
 from __future__ import annotations
-import logging
+import logging, itertools
 from multimethod import multimethod
 from abc import abstractmethod
 from collections.abc import Mapping
@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING
 from qbinary.abc import ABCMetaAttributes
 from qbinary.types import BackendType, Disassembler, ExportFormat
 from qbinary.function import Function
+from qbinary.disassembler import IDADisassembler, BNDisassembler, GhidraDisassembler
 
 if TYPE_CHECKING:
     import networkx
@@ -124,7 +125,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
                 logging.error(f"Could not infer the backend from the provided path {path}")
 
         # Match the resulting backend
-        if backend == BackendType.ida:
+        if backend == BackendType.idapython:
             from qbinary.backend.ida import ProgramIDA
 
             return ProgramIDA(*args, **kwargs)
@@ -175,25 +176,86 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         return Program.open(file_path, exec_path=exec_path, backend=BackendType.quokka)
 
     @staticmethod
-    def from_ida() -> Program:
+    def from_idapython() -> Program:
         """
-        Load the program using the IDA backend
+        Load the program using the IDAPython backend
 
         :return: Program instance
         """
 
-        return Program.open(backend=BackendType.ida)
+        return Program.open(backend=BackendType.idapython)
 
     @staticmethod
-    def from_binary(file_path: str, disassembler: Disassembler, format: ExportFormat) -> Program | None:
+    def from_binary(
+        file_path: str,
+        export_format: ExportFormat = ExportFormat.AUTO,
+        disassembler: Disassembler = Disassembler.AUTO,
+        open_export: bool = False,
+    ) -> Program | bool | None:
         """
-        Load the program using the binexport backend
+        Generates the exported file by invoking the third-party disassembler on the
+        provides @p file_path and imports the resulting exported program.
+        If the backend or the disassembler is set to AUTO, a heuristic-based selection
+        is used in the following order of preference, until a succesful match is found:
+
+        **format selection priority:**
+
+          1. Quokka
+          2. BinExport
+
+        **Disassembler selection priority:**
+
+          1. IDA
+          2. Binary Ninja
+          3. Ghidra
+
+        When both parameters are unspecified, the function attempts combinations
+        of all disassemblers with each backend in the above order until a successful
+        result is obtained.
 
         :param file_path: File path to the binary
-        :return: Program instance
+        :param export_format: The binary exporter format to use for loading the program.
+        :param disassembler: The disassembler to invoke.
+        :param open_export: Whether to open the exported file immediately.
+
+        :return: If open_export is True, then it's either a Program instance or None if
+                 it was not possible to generate it. When open_export is False, it's a
+                 boolean telling the outcome of the export.
         """
-        raise NotImplementedError("Loading a binary is not implemented yet")
-        # TODO: to implement
+
+        format_constraints = [ExportFormat.QUOKKA, ExportFormat.BINEXPORT]
+        disassembler_constraints = [IDADisassembler, BNDisassembler, GhidraDisassembler]
+        if export_format != ExportFormat.AUTO:
+            format_constraints = [export_format]
+        if disassembler == Disassembler.IDA:
+            disassembler_constraints = [IDADisassembler]
+        elif disassembler == Disassembler.BINARY_NINJA:
+            disassembler_constraints = [BNDisassembler]
+        elif disassembler == Disassembler.GHIDRA:
+            disassembler_constraints = [GhidraDisassembler]
+
+        # Try until a good combination is found
+        for format_try, disassembler_try in itertools.product(
+            format_constraints, disassembler_constraints
+        ):
+            if not disassembler_try.exist():  # Check for disassembler presence
+                continue
+            export_path = disassembler_try.from_binary(file_path, format_try)
+
+            # Return if we got a valid candidate
+            if export_path is not None:
+                # Return immediately if open_export == False
+                if not open_export:
+                    return True
+
+                # Open the exported file
+                if format_try == ExportFormat.QUOKKA:
+                    return Program.from_quokka(export_path, file_path)
+                elif format_try == ExportFormat.BINEXPORT:
+                    return Program.from_binexport(export_path)
+
+        # No valid candidate found
+        return False if open_export else None
 
 
 class ComplexTypesCapability(metaclass=ABCMetaAttributes):

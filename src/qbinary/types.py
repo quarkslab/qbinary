@@ -39,11 +39,12 @@ class Disassembler(enum.Enum):
     """
     Enum of the different disassemblers supported by qbinary
     """
+
     AUTO = enum.auto()
     IDA = enum.auto()
     GHIDRA = enum.auto()
     BINARY_NINJA = enum.auto()
-    IDAPYTHON = enum.auto()    # from within IDAPython
+    # TODO choose whether to add it # IDAPYTHON = enum.auto()    # from within IDAPython
 
 
 class ExportFormat(enum.Enum):
@@ -51,6 +52,7 @@ class ExportFormat(enum.Enum):
     Enum of the different export formats supported by qbinary.
     Enum meant to be exposed and manipulated by users.
     """
+
     AUTO = enum.auto()
     BINEXPORT = enum.auto()
     QUOKKA = enum.auto()
@@ -176,7 +178,7 @@ class BackendType(enum.IntEnum):
 
     binexport = 0  # doc: binexport backend
     diaphora = 1  # doc: diaphora backend (not supported)
-    ida = 2  # doc: IDA backend
+    idapython = 2  # doc: IDAPython backend
     quokka = 3  # doc: Quokka backend
 
 
