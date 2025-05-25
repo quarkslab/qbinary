@@ -4,74 +4,52 @@ on:
   release:
     types: [published]
 
-
 jobs:
-  build_wheels:
-    name: Build distribution wheels 📦
-    runs-on: ${{ matrix.buildplat[0] }}
-    strategy:
-      fail-fast: true
-      matrix:
-        buildplat:
-          - [ubuntu-22.04, manylinux_x86_64]
-        python: ["cp310", "cp311", "cp312", "cp313"]
+  build_wheels_and_sdist:
+    name: Build distribution wheels and sdist 📦
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel>=2
+      - name: Install dependencies
+        run: pip install build
 
       - name: Build wheels
-        env:
-          CIBW_PRERELEASE_PYTHONS: True
-          CIBW_BUILD: ${{ matrix.python }}-${{ matrix.buildplat[1] }}
-        run: python -m cibuildwheel --output-dir wheelhouse-${{ matrix.python }}-${{ matrix.buildplat[0] }}-${{ matrix.buildplat[1] }}
+        run: python -m build
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheelhouse-${{ matrix.python }}-${{ matrix.buildplat[0] }}-${{ matrix.buildplat[1] }}
-          path: ./wheelhouse-${{ matrix.python }}-${{ matrix.buildplat[0] }}-${{ matrix.buildplat[1] }}/*.whl
-
-
-  build_sdist:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
-
-      - name: Build sdist
-        run: |
-          python -m pip install -U pip build
-          python -m build --sdist
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: wheelhouse-sdist
-          path: ./dist/*
-
+          name: artifact
+          path: |
+            ./dist/python_binexport*.whl
+            ./dist/*.tar.gz
 
   publish-to-pypi:
     name: Publish Python 🐍 distribution 📦 to PyPI
-    needs: [build_wheels, build_sdist]
+    needs: build_wheels_and_sdist
     runs-on: ubuntu-latest
     environment:
       name: pypi
       url: https://pypi.org/p/qbinary
     permissions:
+      # Used for uploading the release notes.
       contents: write
+      # Used to publish to PyPI with Trusted Publishing.
       id-token: write
+
     steps:
       - uses: actions/download-artifact@v4
         with:
           # By omitting the name we are downloading all the artifacts
           path: ./dist/
-          merge-multiple: true  # Important to avoid subdirectories
+          merge-multiple: true # Important to avoid subdirectories
 
       - name: Publish a Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
@@ -82,5 +60,4 @@ jobs:
       - name: Upload Python packages for release notes
         uses: softprops/action-gh-release@v1
         with:
-          files: |
-            dist/wheelhouse-*
+          files: dist/*
