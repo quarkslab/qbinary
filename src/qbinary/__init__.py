@@ -29,6 +29,8 @@ from qbinary.types import (
     FunctionType,
     InstructionGroup,
     BackendType,
+    Disassembler,
+    ExportFormat,
 )
 
 __all__ = [
@@ -42,4 +44,6 @@ __all__ = [
     "FunctionType",
     "InstructionGroup",
     "BackendType",
+    "Disassembler",
+    "ExportFormat",
 ]
