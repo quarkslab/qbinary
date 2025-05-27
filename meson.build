@@ -7,6 +7,5 @@ project(
 )
 
 py = import('python').find_installation(pure: false)
-py_deps = py.dependency()
 
 subdir('src/qbinary')
