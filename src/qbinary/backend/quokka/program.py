@@ -115,7 +115,7 @@ class ProgramQuokka(Program, ComplexTypesCapability):
 
         # Public attributes
         self.name = self._qk_prog.executable.exec_file.name
-        self.exec_path = exec_path
+        self.exec_path = str(exec_path)
         self.export_path = str(self._qk_prog.export_file)
         self.func_names = {}
         self.callgraph = networkx.DiGraph()  # type: ignore[var-annotated]
