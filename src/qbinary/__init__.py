@@ -31,6 +31,9 @@ from qbinary.types import (
     BackendType,
     Disassembler,
     ExportFormat,
+    QbinaryException,
+    DisassExportNotImplemented,
+    ExportException
 )
 
 __all__ = [
@@ -46,4 +49,7 @@ __all__ = [
     "BackendType",
     "Disassembler",
     "ExportFormat",
+    "QbinaryException",
+    "DisassExportNotImplemented",
+    "ExportException"
 ]
