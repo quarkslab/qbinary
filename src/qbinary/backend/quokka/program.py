@@ -21,6 +21,7 @@ import networkx, logging
 import quokka  # type: ignore[import-untyped]
 from functools import cache
 from typing import TYPE_CHECKING
+from pathlib import Path
 
 import qbinary
 from qbinary.program import Program, ComplexTypesCapability
@@ -106,16 +107,20 @@ class ProgramQuokka(Program, ComplexTypesCapability):
         | ProgramCapability.COMPLEX_TYPES
     )
 
-    def __init__(self, export_path: str, exec_path: str):
+    def __init__(self, export_path: str|Path, exec_path: str|Path):
         super().__init__()
 
+        # exec_path make sure its valid
+        self.exec_path = str(exec_path)
+        if not str(exec_path):  # empty string
+            self.exec_path = Path(export_path).with_suffix("")
+
         # Private attributes
-        self._qk_prog = quokka.Program(export_path, exec_path)
+        self._qk_prog = quokka.Program(export_path, self.exec_path)
         self._functions: dict[Addr, FunctionQuokka] = {}  # dictionary containing the functions
 
         # Public attributes
         self.name = self._qk_prog.executable.exec_file.name
-        self.exec_path = str(exec_path)
         self.export_path = str(self._qk_prog.export_file)
         self.func_names = {}
         self.callgraph = networkx.DiGraph()  # type: ignore[var-annotated]

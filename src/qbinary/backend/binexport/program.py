@@ -22,6 +22,7 @@ import binexport, capstone  # type: ignore[import-untyped]
 from typing import TypeAlias, TYPE_CHECKING
 from functools import cached_property
 from multimethod import multimethod
+from pathlib import Path
 
 from qbinary.program import Program
 from qbinary.backend.binexport.function import FunctionBinExport
@@ -113,7 +114,7 @@ class ProgramBinExport(Program):
 
     __slots__ = ("_be_prog", "architecture_name", "_functions", "_cached_properties", "_cs_arch")
 
-    def __init__(self, file: str, *, arch: str | None = None, exec_path: str | None = None):
+    def __init__(self, file: str|Path, exec_path: str | Path | None = None, *, arch: str | None = None):
         super().__init__()
 
         # Private attributes
@@ -125,9 +126,9 @@ class ProgramBinExport(Program):
         # Public attributes
         self.name = self._be_prog.name
         if exec_path:
-            self.exec_path = exec_path
+            self.exec_path = Path(exec_path)
         else:  # Try to guess it as best effort by removing the final .BinExport suffix
-            self.exec_path = self.name.replace(".BinExport", "")
+            self.exec_path = Path(file).with_suffix("")
         self.export_path = str(self._be_prog.path)
         self.func_names = {}
         self.callgraph = self._be_prog.callgraph

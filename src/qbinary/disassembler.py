@@ -21,23 +21,27 @@ import os, sys
 from pathlib import Path
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
+import logging
 
 # third-party imports
 import quokka
 import binexport
 
 # local imports
-from qbinary.types import ExportFormat
+from qbinary.types import ExportFormat, Disassembler
 
 if TYPE_CHECKING:
     from qbinary.program import Program
 
 
-class Disassembler(ABC):
+class DisassemblyEngine(ABC):
 
     @staticmethod
     @abstractmethod
-    def from_binary(binary_file: Path | str, export_format: ExportFormat) -> Path | None:
+    def generate(binary_file: Path | str,
+                 export_format: ExportFormat,
+                 timeout: int = 600,
+                 override: bool = True) -> Path | None:
         """
         Export the binary file provided using the specified format. It returns
         the exported file path or None when an error occurred
@@ -62,31 +66,67 @@ class Disassembler(ABC):
         """
         raise NotImplementedError("This method should be implemented by subclasses")
 
+    @staticmethod
+    def from_enum(disassembler: Disassembler) -> type[DisassemblyEngine]:
+        """
+        Get the disassembler instance from the Disassembler enum value.
 
-class IDADisassembler(Disassembler):
+        :param disassembler: The Disassembler enum value
+        :return: An instance of the corresponding disassembler class
+        """
+        if disassembler == Disassembler.IDA:
+            return IDADisassembler
+        elif disassembler == Disassembler.BINARY_NINJA:
+            return BNDisassembler
+        elif disassembler == Disassembler.GHIDRA:
+            return GhidraDisassembler
+        else:
+            raise ValueError(f"Unsupported disassembler {disassembler}")
+
+
+class IDADisassembler(DisassemblyEngine):
 
     @staticmethod
-    def from_binary(binary_file: Path | str, export_format: ExportFormat) -> Path | None:
+    def generate(binary_file: Path | str,
+                 export_format: ExportFormat,
+                 timeout: int = 600,
+                 override: bool = True) -> Path | None:
         formats = [ExportFormat.QUOKKA, ExportFormat.BINEXPORT]
         if export_format != ExportFormat.AUTO:
             formats = [export_format]
 
         for format_try in formats:
+
             if format_try == ExportFormat.QUOKKA:
-                prog = quokka.Program.from_binary(binary_file)
-                if prog:
-                    return prog.export_file
+                try:
+                    export_file = quokka.Program.generate(
+                        binary_file,
+                        override=override,
+                        timeout=timeout)
+                    if export_file.exists():
+                        return export_file
+                except FileNotFoundError as e:  # Raise if files not found
+                    logging.warning(f"FileNotFoundError after Quokka generation: {e}")
+                except quokka.QuokkaError as e:
+                    logging.error(f"Quokka error during generation: {e}")
 
             elif format_try == ExportFormat.BINEXPORT:
                 export_path = Path(str(binary_file) + ".BinExport")
-                prog = binexport.ProgramBinExport.from_binary_file(
-                    binary_file,
-                    export_path,
-                    backend=binexport.DisassemblerBackend.IDA,
-                    open_export=False
-                )
-                if prog:
-                    return export_path
+                try:
+                    prog = binexport.ProgramBinExport.generate(
+                        binary_file,
+                        export_path,
+                        backend=binexport.DisassemblerBackend.IDA,
+                        override=override,
+                        timeout=timeout
+                    )
+                    if prog:
+                        return export_path
+                except FileNotFoundError:  # Raise if files not found
+                    logging.warning(f"FileNotFoundError after BinExport generation: {e}")
+                except Exception as e:
+                    logging.error(f"Error during BinExport generation: {e}")
+                    continue  # Exception raise by means of calling idascript
             else:
                 raise ValueError(f"Unsupported binary exporter format {format_try}")
 
@@ -132,7 +172,7 @@ class IDADisassembler(Disassembler):
 
 
 # TODO complete this
-class BNDisassembler(Disassembler):
+class BNDisassembler(DisassemblyEngine):
 
     @staticmethod
     def exist() -> bool:
@@ -145,7 +185,7 @@ class BNDisassembler(Disassembler):
 
 
 # TODO complete this
-class GhidraDisassembler(Disassembler):
+class GhidraDisassembler(DisassemblyEngine):
 
     @staticmethod
     def exist() -> bool:
