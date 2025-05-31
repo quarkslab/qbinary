@@ -35,6 +35,28 @@ An integer representing an address within a program
 """
 
 
+class QbinaryException(Exception):
+    """
+    Base exception of all Qbinary's exception. Enables catching
+    all possible exceptions raised by Qbinary API.
+    """
+    pass
+
+
+class ExportException(QbinaryException):
+    """
+    Exception raised when an error occurs during export.
+    """
+    pass
+
+
+class DisassExportNotImplemented(QbinaryException):
+    """
+    The combination disassembler and exporter provided does not exists.
+    """
+    pass
+
+
 class Disassembler(enum.Enum):
     """
     Enum of the different disassemblers supported by qbinary
@@ -69,6 +91,21 @@ class ExportFormat(enum.Enum):
                 return ".quokka"
             case _:
                 raise ".noext"
+
+    @property
+    def supported_disassemblers(self) -> list[Disassembler]:
+        """
+        Get the list of disassemblers that support this export format.
+        """
+        match self:
+            case ExportFormat.BINEXPORT:
+                # FIXME: Re-enable binary ninja and ghidra when supported
+                return [Disassembler.IDA] #, Disassembler.BINARY_NINJA, Disassembler.GHIDRA]
+            case ExportFormat.QUOKKA:
+                return [Disassembler.IDA]
+            case _:
+                return []  # Irrelevant for AUTO
+
 
 
 class DataType(enum.Enum):
