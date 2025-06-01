@@ -131,9 +131,17 @@ class IDADisassembler(DisassemblyEngine):
                     logging.error(f"Error during BinExport generation: {e}")
                     continue  # Exception raise by means of calling idascript
             else:
-                raise ValueError(f"Unsupported binary exporter format {format_try}")
+                logging.warning(f"Unsupported exporting combination {format_try}/IDA")
 
         # Nothing worked
+        return None
+
+    @staticmethod
+    def decompile(binary: Program) -> None:
+        """
+        Decompile the program and fill the Program object in place.
+        Not yet supported.
+        """
         return None
 
     @staticmethod
@@ -174,27 +182,146 @@ class IDADisassembler(DisassemblyEngine):
         return bool(IDADisassembler.get_path())
 
 
-# TODO complete this
 class BNDisassembler(DisassemblyEngine):
+    @staticmethod
+    def generate(
+        binary_file: Path | str,
+        export_format: ExportFormat,
+        timeout: int = 0,
+        override: bool = True,
+    ) -> Path | None:
+        """
+        Export the binary file provided using the specified format. It returns
+        the exported file path or None when an error occurred
+        """
+
+        formats = (ExportFormat.BINEXPORT,)
+        if export_format != ExportFormat.AUTO:
+            formats = (export_format,)
+
+        for format_try in formats:
+            if format_try == ExportFormat.BINEXPORT:
+                export_path = Path(binary_file).with_suffix(".BinExport")
+                try:
+                    prog = binexport.ProgramBinExport.generate(
+                        binary_file,
+                        export_path,
+                        backend=binexport.DisassemblerBackend.BINARY_NINJA,
+                        override=override,
+                        timeout=timeout,
+                    )
+                    if prog:
+                        return export_path
+                except FileNotFoundError as e:  # Raise if files not found
+                    logging.warning(f"FileNotFoundError after BinExport generation: {e}")
+                except Exception as e:
+                    logging.error(f"Error during BinExport generation: {e}")
+                    continue
+            else:
+                logging.warning(f"Unsupported exporting combination {format_try}/Binary Ninja")
+
+        # Nothing worked
+        return None
+
+    @staticmethod
+    def decompile(binary: Program) -> None:
+        """
+        Decompile the program and fill the Program object in place.
+        Not yet supported.
+        """
+        return None
 
     @staticmethod
     def exist() -> bool:
         """
-        Check if the disassembler can be found in the system path
+        Check if the binaryninja module is reachable.
 
         :return: True if the disassembler is found, False otherwise
         """
-        return False
+        try:
+            import binaryninja
+        except ModuleNotFoundError as e:
+            logging.error(
+                "Cannot find module python `binaryninja`. Try running BINARY_NINJA_PATH/scripts/install_api.py"
+            )
+            return False
+
+        return True
 
 
-# TODO complete this
 class GhidraDisassembler(DisassemblyEngine):
+    @staticmethod
+    def generate(
+        binary_file: Path | str,
+        export_format: ExportFormat,
+        timeout: int = 0,
+        override: bool = True,
+    ) -> Path | None:
+        """
+        Export the binary file provided using the specified format. It returns
+        the exported file path or None when an error occurred
+        """
+
+        formats = (ExportFormat.BINEXPORT,)
+        if export_format != ExportFormat.AUTO:
+            formats = (export_format,)
+
+        for format_try in formats:
+            if format_try == ExportFormat.BINEXPORT:
+                export_path = Path(binary_file).with_suffix(".BinExport")
+                try:
+                    prog = binexport.ProgramBinExport.generate(
+                        binary_file,
+                        export_path,
+                        backend=binexport.DisassemblerBackend.GHIDRA,
+                        override=override,
+                        timeout=timeout,
+                    )
+                    if prog:
+                        return export_path
+                except FileNotFoundError as e:  # Raise if files not found
+                    logging.warning(f"FileNotFoundError after BinExport generation: {e}")
+                except Exception as e:
+                    logging.error(f"Error during BinExport generation: {e}")
+                    continue
+            else:
+                logging.warning(f"Unsupported exporting combination {format_try}/Ghidra")
+
+        # Nothing worked
+        return None
+
+    @staticmethod
+    def decompile(binary: Program) -> None:
+        """
+        Decompile the program and fill the Program object in place.
+        Not yet supported.
+        """
+        return None
 
     @staticmethod
     def exist() -> bool:
         """
-        Check if the disassembler can be found in the system path
+        Check if the Ghidra disassembler is reachable.
 
         :return: True if the disassembler is found, False otherwise
         """
+
+        # Check if the GHIDRA_PATH environment variable is set
+        ghidra_dir = os.environ.get("GHIDRA_PATH")
+        if not ghidra_dir:
+            logger.error(
+                "The 'GHIDRA_PATH' environment variable is not set. "
+                "Please set it to the root installation folder of Ghidra."
+            )
+            return False
+
+        # Check if the GHIDRA_PATH dir exists
+        ghidra_dir = Path(ghidra_dir)
+        if not ghidra_dir.exists():
+            logger.error(f"The path specified in 'GHIDRA_PATH' does not exist: {ghidra_dir}")
+        elif not ghidra_dir.is_dir():
+            logger.error(f"The path specified in 'GHIDRA_PATH' is not a directory: {ghidra_dir}")
+        else:
+            return True
+
         return False
