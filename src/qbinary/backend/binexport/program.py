@@ -131,7 +131,7 @@ class ProgramBinExport(Program):
             self.exec_path = Path(exec_path)
         else:  # Try to guess it as best effort by removing the final .BinExport suffix
             self.exec_path = Path(file).with_suffix("")
-        self.export_path = str(self._be_prog.path)
+        self.export_path = Path(self._be_prog.path)
         self.func_names = {}
         self.callgraph = self._be_prog.callgraph
         self.capabilities = ProgramCapability(0)
