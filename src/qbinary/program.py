@@ -199,7 +199,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         file_path: str,
         export_format: ExportFormat = ExportFormat.AUTO,
         disassembler: Disassembler = Disassembler.AUTO,
-        timeout: int = 600,
+        timeout: int = 0,
         override: bool = True) -> Program:
         """
         Loads the executable @file_path into a Program object.
@@ -216,7 +216,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
                             If empty, the default path is used.
         :param database_path: The path to the database file for the disassembler.
                               If empty, the default path is used.
-        :param timeout: The timeout in seconds for the disassembler to complete.
+        :param timeout: The timeout in seconds for the disassembler to complete. 0 means no timeout.
         :param override: Whether to override the existing exported file if it exists.
         :return: Program instance. 
 
@@ -239,7 +239,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
     def generate(file_path: str,
                  export_format: ExportFormat = ExportFormat.AUTO,
                  disassembler: Disassembler = Disassembler.AUTO,
-                 timeout: int = 600,
+                 timeout: int = 0,
                  override: bool = True) -> Path:
         """
         Generates the exported file by invoking the third-party disassembler on the

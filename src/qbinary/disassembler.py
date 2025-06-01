@@ -40,7 +40,7 @@ class DisassemblyEngine(ABC):
     @abstractmethod
     def generate(binary_file: Path | str,
                  export_format: ExportFormat,
-                 timeout: int = 600,
+                 timeout: int = 0,
                  override: bool = True) -> Path | None:
         """
         Export the binary file provided using the specified format. It returns
@@ -89,7 +89,7 @@ class IDADisassembler(DisassemblyEngine):
     @staticmethod
     def generate(binary_file: Path | str,
                  export_format: ExportFormat,
-                 timeout: int = 600,
+                 timeout: int = 0,
                  override: bool = True) -> Path | None:
         formats = [ExportFormat.QUOKKA, ExportFormat.BINEXPORT]
         if export_format != ExportFormat.AUTO:
@@ -122,7 +122,7 @@ class IDADisassembler(DisassemblyEngine):
                     )
                     if prog:
                         return export_path
-                except FileNotFoundError:  # Raise if files not found
+                except FileNotFoundError as e:  # Raise if files not found
                     logging.warning(f"FileNotFoundError after BinExport generation: {e}")
                 except Exception as e:
                     logging.error(f"Error during BinExport generation: {e}")
