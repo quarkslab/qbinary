@@ -33,7 +33,7 @@ from qbinary.types import (
     ExportFormat,
     QbinaryException,
     DisassExportNotImplemented,
-    ExportException
+    ExportException,
 )
 
 __all__ = [
@@ -51,5 +51,5 @@ __all__ = [
     "ExportFormat",
     "QbinaryException",
     "DisassExportNotImplemented",
-    "ExportException"
+    "ExportException",
 ]

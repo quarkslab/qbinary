@@ -114,7 +114,9 @@ class ProgramBinExport(Program):
 
     __slots__ = ("_be_prog", "architecture_name", "_functions", "_cached_properties", "_cs_arch")
 
-    def __init__(self, file: str|Path, exec_path: str | Path | None = None, *, arch: str | None = None):
+    def __init__(
+        self, file: str | Path, exec_path: str | Path | None = None, *, arch: str | None = None
+    ):
         super().__init__()
 
         # Private attributes

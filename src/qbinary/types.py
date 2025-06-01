@@ -40,6 +40,7 @@ class QbinaryException(Exception):
     Base exception of all Qbinary's exception. Enables catching
     all possible exceptions raised by Qbinary API.
     """
+
     pass
 
 
@@ -47,6 +48,7 @@ class ExportException(QbinaryException):
     """
     Exception raised when an error occurs during export.
     """
+
     pass
 
 
@@ -54,6 +56,7 @@ class DisassExportNotImplemented(QbinaryException):
     """
     The combination disassembler and exporter provided does not exists.
     """
+
     pass
 
 
@@ -100,12 +103,11 @@ class ExportFormat(enum.Enum):
         match self:
             case ExportFormat.BINEXPORT:
                 # FIXME: Re-enable binary ninja and ghidra when supported
-                return [Disassembler.IDA] #, Disassembler.BINARY_NINJA, Disassembler.GHIDRA]
+                return [Disassembler.IDA]  # , Disassembler.BINARY_NINJA, Disassembler.GHIDRA]
             case ExportFormat.QUOKKA:
                 return [Disassembler.IDA]
             case _:
                 return []  # Irrelevant for AUTO
-
 
 
 class DataType(enum.Enum):
