@@ -26,10 +26,21 @@ from pathlib import Path
 import itertools
 
 from qbinary.abc import ABCMetaAttributes
-from qbinary.types import BackendType, Disassembler, ExportFormat, ExportException,\
-                          DisassExportNotImplemented, QbinaryException
+from qbinary.types import (
+    BackendType,
+    Disassembler,
+    ExportFormat,
+    ExportException,
+    DisassExportNotImplemented,
+    QbinaryException,
+)
 from qbinary.function import Function
-from qbinary.disassembler import IDADisassembler, BNDisassembler, GhidraDisassembler, DisassemblyEngine
+from qbinary.disassembler import (
+    IDADisassembler,
+    BNDisassembler,
+    GhidraDisassembler,
+    DisassemblyEngine,
+)
 
 if TYPE_CHECKING:
     import networkx
@@ -109,10 +120,12 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
     #
 
     @staticmethod
-    def open(export_file: Path|str = "",
-             exec_file: Path|str = "",
-             backend: BackendType | None = None,
-             **kwargs) -> Program:
+    def open(
+        export_file: Path | str = "",
+        exec_file: Path | str = "",
+        backend: BackendType | None = None,
+        **kwargs,
+    ) -> Program:
         """
         Opens a program by calling the right backend.
         :param export_file: The path to the exported file. If empty, use IDAPython backend
@@ -131,7 +144,9 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
                 elif str(export_file).endswith(ExportFormat.BINEXPORT.extension):
                     backend = BackendType.binexport
                 else:
-                    logging.error(f"Could not infer the backend from the provided path {export_file}")
+                    logging.error(
+                        f"Could not infer the backend from the provided path {export_file}"
+                    )
 
         # Match the resulting backend
         if backend == BackendType.idapython:
@@ -200,7 +215,8 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         export_format: ExportFormat = ExportFormat.AUTO,
         disassembler: Disassembler = Disassembler.AUTO,
         timeout: int = 0,
-        override: bool = True) -> Program:
+        override: bool = True,
+    ) -> Program:
         """
         Loads the executable @file_path into a Program object.
         If override is set to false, will first try to open an
@@ -218,29 +234,32 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
                               If empty, the default path is used.
         :param timeout: The timeout in seconds for the disassembler to complete. 0 means no timeout.
         :param override: Whether to override the existing exported file if it exists.
-        :return: Program instance. 
+        :return: Program instance.
 
         :raises DisassExportNotImplemented: If the disassembler and export format tuple is not implemented.
         :raises ExportException: If the couple disass+exporter failed at producing the
                                  excepted export file.
         """
-        
-        export_file = Program.generate(file_path,
-                                       export_format=export_format,
-                                       disassembler=disassembler,
-                                       timeout=timeout,
-                                       override=override)
-        
+
+        export_file = Program.generate(
+            file_path,
+            export_format=export_format,
+            disassembler=disassembler,
+            timeout=timeout,
+            override=override,
+        )
+
         # If reach this location no exception was raised , so we have a valid export file
         return Program.open(export_file, file_path)
 
-
     @staticmethod
-    def generate(file_path: str,
-                 export_format: ExportFormat = ExportFormat.AUTO,
-                 disassembler: Disassembler = Disassembler.AUTO,
-                 timeout: int = 0,
-                 override: bool = True) -> Path:
+    def generate(
+        file_path: str,
+        export_format: ExportFormat = ExportFormat.AUTO,
+        disassembler: Disassembler = Disassembler.AUTO,
+        timeout: int = 0,
+        override: bool = True,
+    ) -> Path:
         """
         Generates the exported file by invoking the third-party disassembler on the
         provides @p file_path and imports the resulting exported program.
@@ -281,15 +300,22 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
 
         # select the disassembler
         if disassembler == Disassembler.AUTO:  # predefined order
-            tupl_combinations = [(d, fmt) for fmt in format_constraints for d in fmt.supported_disassemblers]
+            tupl_combinations = [
+                (d, fmt) for fmt in format_constraints for d in fmt.supported_disassemblers
+            ]
         else:
-            tupl_combinations = [(d, fmt) for fmt in format_constraints 
-                                 for d in fmt.supported_disassemblers if d == disassembler]
+            tupl_combinations = [
+                (d, fmt)
+                for fmt in format_constraints
+                for d in fmt.supported_disassemblers
+                if d == disassembler
+            ]
 
         # if list is empty it means that no valid tuple match given disass/exporter criteria
         if not tupl_combinations:
-            raise DisassExportNotImplemented(f"{disassembler.name} and {export_format.name} "
-                                             "combination is not supported")
+            raise DisassExportNotImplemented(
+                f"{disassembler.name} and {export_format.name} " "combination is not supported"
+            )
 
         for disass_ty, format in tupl_combinations:
             # Check if the disassembler is available
@@ -297,17 +323,14 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
             if not disass.exist():
                 logging.warning(f"Disassembler {disass_ty.name} is not available, skipping")
                 if len(tupl_combinations) == 1:  # if single entry directly raise exception
-                    raise DisassExportNotImplemented(f"{disass_ty.name} is not available, "
-                                                     f"cannot generate export file for {file_path}")
+                    raise DisassExportNotImplemented(
+                        f"{disass_ty.name} is not available, "
+                        f"cannot generate export file for {file_path}"
+                    )
 
             # Generate the export file using the disassembler
             try:
-                export_path = disass.generate(
-                    file_path,
-                    format,
-                    timeout=timeout,
-                    override=override
-                )
+                export_path = disass.generate(file_path, format, timeout=timeout, override=override)
                 if export_path is not None:
                     return export_path
                 else:
@@ -315,13 +338,14 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
             except ExportException as e:
                 logging.error(f"Failed to generate export file with {disass_ty.name}: {e}")
                 raise e
-        
+
         # If reach this point no valid disass/export managed to generate
         # an exported file
-        raise ExportException(f"Failed to generate export file for {file_path} "
-                              f"using disassembler {disassembler.name} "
-                              f"and format {export_format.name}")
-
+        raise ExportException(
+            f"Failed to generate export file for {file_path} "
+            f"using disassembler {disassembler.name} "
+            f"and format {export_format.name}"
+        )
 
 
 class ComplexTypesCapability(metaclass=ABCMetaAttributes):

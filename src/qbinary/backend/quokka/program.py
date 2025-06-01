@@ -107,7 +107,7 @@ class ProgramQuokka(Program, ComplexTypesCapability):
         | ProgramCapability.COMPLEX_TYPES
     )
 
-    def __init__(self, export_path: str|Path, exec_path: str|Path):
+    def __init__(self, export_path: str | Path, exec_path: str | Path):
         super().__init__()
 
         # exec_path make sure its valid

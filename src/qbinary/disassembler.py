@@ -38,10 +38,12 @@ class DisassemblyEngine(ABC):
 
     @staticmethod
     @abstractmethod
-    def generate(binary_file: Path | str,
-                 export_format: ExportFormat,
-                 timeout: int = 0,
-                 override: bool = True) -> Path | None:
+    def generate(
+        binary_file: Path | str,
+        export_format: ExportFormat,
+        timeout: int = 0,
+        override: bool = True,
+    ) -> Path | None:
         """
         Export the binary file provided using the specified format. It returns
         the exported file path or None when an error occurred
@@ -87,10 +89,12 @@ class DisassemblyEngine(ABC):
 class IDADisassembler(DisassemblyEngine):
 
     @staticmethod
-    def generate(binary_file: Path | str,
-                 export_format: ExportFormat,
-                 timeout: int = 0,
-                 override: bool = True) -> Path | None:
+    def generate(
+        binary_file: Path | str,
+        export_format: ExportFormat,
+        timeout: int = 0,
+        override: bool = True,
+    ) -> Path | None:
         formats = [ExportFormat.QUOKKA, ExportFormat.BINEXPORT]
         if export_format != ExportFormat.AUTO:
             formats = [export_format]
@@ -100,9 +104,8 @@ class IDADisassembler(DisassemblyEngine):
             if format_try == ExportFormat.QUOKKA:
                 try:
                     export_file = quokka.Program.generate(
-                        binary_file,
-                        override=override,
-                        timeout=timeout)
+                        binary_file, override=override, timeout=timeout
+                    )
                     if export_file.exists():
                         return export_file
                 except FileNotFoundError as e:  # Raise if files not found
@@ -118,7 +121,7 @@ class IDADisassembler(DisassemblyEngine):
                         export_path,
                         backend=binexport.DisassemblerBackend.IDA,
                         override=override,
-                        timeout=timeout
+                        timeout=timeout,
                     )
                     if prog:
                         return export_path
