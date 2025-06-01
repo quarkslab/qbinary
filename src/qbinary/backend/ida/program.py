@@ -19,6 +19,7 @@ Contains the ProgramIDA implementation"""
 from __future__ import annotations
 import weakref, networkx
 import idautils, ida_nalt, ida_funcs, ida_name, ida_bytes  # type: ignore[import-not-found]
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from qbinary.program import Program
@@ -76,8 +77,8 @@ class ProgramIDA(Program):
 
         # Public attributes
         self.name = ida_nalt.get_root_filename()
-        self.exec_path = ida_nalt.get_input_file_path()
-        self.export_path = ""
+        self.exec_path = Path(ida_nalt.get_input_file_path())
+        self.export_path = None
         self.func_names = {}
         self.callgraph = networkx.DiGraph()
         self.capabilities = ProgramCapability(0)

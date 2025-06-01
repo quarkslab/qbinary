@@ -111,9 +111,10 @@ class ProgramQuokka(Program, ComplexTypesCapability):
         super().__init__()
 
         # exec_path make sure its valid
-        self.exec_path = str(exec_path)
-        if not str(exec_path):  # empty string
+        if exec_path == "":  # empty string
             self.exec_path = Path(export_path).with_suffix("")
+        else:
+            self.exec_path = Path(exec_path)
 
         # Private attributes
         self._qk_prog = quokka.Program(export_path, self.exec_path)
@@ -121,7 +122,7 @@ class ProgramQuokka(Program, ComplexTypesCapability):
 
         # Public attributes
         self.name = self._qk_prog.executable.exec_file.name
-        self.export_path = str(self._qk_prog.export_file)
+        self.export_path = Path(self._qk_prog.export_file)
         self.func_names = {}
         self.callgraph = networkx.DiGraph()  # type: ignore[var-annotated]
         self.structures = []

@@ -17,13 +17,12 @@
 Contains the abstraction layer to a Program"""
 
 from __future__ import annotations
-import logging, itertools
+import logging
 from multimethod import multimethod
 from abc import abstractmethod
 from collections.abc import Mapping
 from typing import TYPE_CHECKING
 from pathlib import Path
-import itertools
 
 from qbinary.abc import ABCMetaAttributes
 from qbinary.types import (
@@ -69,8 +68,8 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
     )
 
     name: str  # The name of the program
-    exec_path: str | Path | None  # The executable path if it has been specified, None otherwise
-    export_path: str | None  # The exported file path if it has been specified, None otherwise
+    exec_path: Path | None  # The executable path if it has been specified, None otherwise
+    export_path: Path | None  # The exported file path if it has been specified, None otherwise
     callgraph: networkx.DiGraph  # The program Call Graph as a Networkx DiGraph
     capabilities: ProgramCapability  # Capabilities offered by the underlying backend
     func_names: dict[str, Addr]  # Mapping between function names and addresses
