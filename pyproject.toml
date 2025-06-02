@@ -12,9 +12,9 @@ requires-python = ">=3.11"
 dependencies = [
     "multimethod",
     "enum_tools",
-    "python-binexport>=0.3.7",
+    "python-binexport>=0.4.0",
     "capstone>=5.0.1",
-    "quokka-project[pypcode]>=0.6.0",
+    "quokka-project[pypcode]>=0.6.1",
     "networkx"
 ]
 dynamic = ["version"]
