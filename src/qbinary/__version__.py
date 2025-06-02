@@ -17,7 +17,7 @@
 Version of qbinary
 """
 
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 if __name__ == "__main__":
     print(__version__)
