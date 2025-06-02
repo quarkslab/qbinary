@@ -156,7 +156,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         elif backend == BackendType.binexport:
             from qbinary.backend.binexport import ProgramBinExport
 
-            return ProgramBinExport(export_file, exec_path=exec_file, **kwargs)
+            return ProgramBinExport(export_file, exec_file=exec_file, **kwargs)
 
         elif backend == BackendType.quokka:
             from qbinary.backend.quokka import ProgramQuokka
@@ -168,7 +168,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
 
     @staticmethod
     def from_binexport(
-        file_path: str, arch: str | None = None, exec_path: str | None = None
+        file_path: str, arch: str | None = None, exec_file: str | None = None
     ) -> Program:
         """
         Load the Program using the binexport backend
@@ -178,25 +178,25 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
                      useful when the binexport'ed architecture is not enough to
                      correctly disassemble the binary (for example with arm
                      thumb2 or some mips modes).
-        :param exec_path: Optional path to raw executable binary
+        :param exec_file: Optional path to raw executable binary
         :return: Program instance
         """
 
         return Program.open(
-            file_path, arch=arch, exec_path=exec_path, backend=BackendType.binexport
+            file_path, arch=arch, exec_file=exec_file, backend=BackendType.binexport
         )
 
     @staticmethod
-    def from_quokka(file_path: str, exec_path: str) -> Program:
+    def from_quokka(file_path: str, exec_file: str) -> Program:
         """
         Load the Program using the Quokka backend.
 
         :param file_path: File path to the binexport file
-        :param exec_path: Path of the raw binary
+        :param exec_file: Path of the raw binary
         :return: Program instance
         """
 
-        return Program.open(file_path, exec_path=exec_path, backend=BackendType.quokka)
+        return Program.open(file_path, exec_file=exec_file, backend=BackendType.quokka)
 
     @staticmethod
     def from_idapython() -> Program:
