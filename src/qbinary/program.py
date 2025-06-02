@@ -156,7 +156,7 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         elif backend == BackendType.binexport:
             from qbinary.backend.binexport import ProgramBinExport
 
-            return ProgramBinExport(export_file, exec_file=exec_file, **kwargs)
+            return ProgramBinExport(export_file, exec_path=exec_file, **kwargs)
 
         elif backend == BackendType.quokka:
             from qbinary.backend.quokka import ProgramQuokka
