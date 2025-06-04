@@ -309,7 +309,7 @@ class GhidraDisassembler(DisassemblyEngine):
         # Check if the GHIDRA_PATH environment variable is set
         ghidra_dir = os.environ.get("GHIDRA_PATH")
         if not ghidra_dir:
-            logger.error(
+            logging.error(
                 "The 'GHIDRA_PATH' environment variable is not set. "
                 "Please set it to the root installation folder of Ghidra."
             )
@@ -318,9 +318,9 @@ class GhidraDisassembler(DisassemblyEngine):
         # Check if the GHIDRA_PATH dir exists
         ghidra_dir = Path(ghidra_dir)
         if not ghidra_dir.exists():
-            logger.error(f"The path specified in 'GHIDRA_PATH' does not exist: {ghidra_dir}")
+            logging.error(f"The path specified in 'GHIDRA_PATH' does not exist: {ghidra_dir}")
         elif not ghidra_dir.is_dir():
-            logger.error(f"The path specified in 'GHIDRA_PATH' is not a directory: {ghidra_dir}")
+            logging.error(f"The path specified in 'GHIDRA_PATH' is not a directory: {ghidra_dir}")
         else:
             return True
 
