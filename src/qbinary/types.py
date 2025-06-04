@@ -102,8 +102,7 @@ class ExportFormat(enum.Enum):
         """
         match self:
             case ExportFormat.BINEXPORT:
-                # FIXME: Re-enable binary ninja and ghidra when supported
-                return [Disassembler.IDA]  # , Disassembler.BINARY_NINJA, Disassembler.GHIDRA]
+                return [Disassembler.IDA, Disassembler.BINARY_NINJA, Disassembler.GHIDRA]
             case ExportFormat.QUOKKA:
                 return [Disassembler.IDA]
             case _:
