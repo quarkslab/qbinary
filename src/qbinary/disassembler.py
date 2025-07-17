@@ -163,10 +163,12 @@ class IDADisassembler(DisassemblyEngine):
                     return (d / bin_name).absolute().as_posix()
             return ""
 
-        # Search for a IDA_PATH environment variable
+        # Search if IDA_PATH environment variable provided
         if "IDA_PATH" in os.environ:
-            return find_in_dir(Path(os.environ["IDA_PATH"]))
-        elif "PATH" in os.environ:  # Iterate PATH (linux only)
+            return Path(os.environ["IDA_PATH"]).asbolute().as_posix()
+
+        # Other search PATH (linux only)
+        elif "PATH" in os.environ:
             for p in os.environ["PATH"].split(":"):
                 if ida_path := find_in_dir(Path(p)):
                     return ida_path
