@@ -165,7 +165,7 @@ class IDADisassembler(DisassemblyEngine):
 
         # Search if IDA_PATH environment variable provided
         if "IDA_PATH" in os.environ:
-            return Path(os.environ["IDA_PATH"]).asbolute().as_posix()
+            return Path(os.environ["IDA_PATH"]).absolute().as_posix()
 
         # Other search PATH (linux only)
         elif "PATH" in os.environ:
