@@ -227,10 +227,6 @@ class Program(Mapping, metaclass=ABCMetaAttributes):
         :param file_path: File path to the binary
         :param export_format: The binary exporter format to use for loading the program.
         :param disassembler: The disassembler to invoke.
-        :param output_path: The path where the exported file should be saved.
-                            If empty, the default path is used.
-        :param database_path: The path to the database file for the disassembler.
-                              If empty, the default path is used.
         :param timeout: The timeout in seconds for the disassembler to complete. 0 means no timeout.
         :param override: Whether to override the existing exported file if it exists.
         :return: Program instance.
